@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: premium-lifestyle-intel
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    disk:
+      name: premium-lifestyle-data
+      mountPath: /var/data
+      sizeGB: 5
+    envVars:
+      - key: DATABASE_PATH
+        value: /var/data/content.db
+      - key: IMAGE_CACHE_DIR
+        value: /var/data/images
+      - key: OUTPUT_DIR
+        value: /var/data/output
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: MIMO_API_KEY
+        sync: false
+      - key: KIMI_API_KEY
+        sync: false

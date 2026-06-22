@@ -1,0 +1,15 @@
+venv/
+static/images/
+output/
+content.db
+data/
+*.db
+*.db-shm
+*.db-wal
+.git/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+.env.*
+!.env.example

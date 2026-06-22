@@ -1,0 +1,1000 @@
+sites:
+- name: Tablet Hotels
+  url: https://www.tablethotels.com
+  type: webpage
+  category_hint: 精品酒店与度假
+  enabled: true
+  selectors:
+    article_list: a[href*='/hotels/']
+    title: h1, .hotel-name
+    content: .hotel-description, .content
+    image: img.hotel-image, .gallery img
+- name: Design Hotels
+  url: https://www.designhotels.com
+  type: webpage
+  category_hint: 精品酒店与度假
+  enabled: true
+  selectors:
+    article_list: a[href*='/hotels/']
+    title: h1
+    content: .content, .description
+    image: img
+- name: Table Magazine
+  url: https://www.tablemagazine.com
+  type: webpage
+  category_hint: 精品酒店与度假
+  enabled: true
+  selectors:
+    article_list: article a, .post a
+    title: h1, h2, .entry-title
+    content: .entry-content, .post-content
+    image: img
+- name: AFAR
+  url: https://www.afar.com
+  type: webpage
+  category_hint: 精品酒店与度假
+  enabled: true
+  selectors:
+    article_list: a[href*='/article/'], a[href*='/travel-tips/'], a[href*='/destination/']
+    title: h1
+    content: .article-body, .content-body
+    image: img
+- name: Travel + Leisure
+  url: https://www.travelandleisure.com
+  type: rss
+  category_hint: 精品酒店与度假
+  enabled: false
+  selectors:
+    article_list: article a
+    title: h1
+    content: .article-body
+    image: img
+  rss: https://www.travelandleisure.com/rss
+- name: Monocle
+  url: https://monocle.com
+  type: webpage
+  category_hint: 旅行与探索
+  enabled: true
+  selectors:
+    article_list: a[href*='/magazine/']
+    title: h1
+    content: .article-content, .content
+    image: img
+- name: FT HTSI
+  enabled: false
+  url: https://www.ft.com/how-to-spend-it
+  type: rss
+  category_hint: 旅行与探索
+  enabled: true
+  selectors:
+    article_list: a[data-trackable='heading-link']
+    title: h1
+    content: .article-body
+    image: img
+  rss: https://www.ft.com/rss/home
+- name: Food & Wine
+  url: https://www.foodandwine.com
+  type: rss
+  category_hint: 美食与美酒
+  enabled: false
+  selectors:
+    article_list: article a
+    title: h1
+    content: .article-body, .content
+    image: img
+  rss: https://www.foodandwine.com/rss
+- name: Punch
+  url: https://punchdrink.com
+  type: rss
+  category_hint: 美食与美酒
+  enabled: true
+  selectors:
+    article_list: article a, .post-title a
+    title: h1
+    content: .entry-content, .post-content
+    image: img
+  rss: https://punchdrink.com/feed/
+- name: Whisky Advocate
+  url: https://www.whiskyadvocate.com
+  type: webpage
+  category_hint: 美食与美酒
+  enabled: true
+  selectors:
+    article_list: a[href*='/review/'], a[href*='/article/'], article a
+    title: h1
+    content: .entry-content, .article-content
+    image: img
+
+- name: Eater
+  url: https://www.eater.com
+  type: rss
+  rss: https://www.eater.com/rss/index.xml
+  category_hint: 美食与美酒
+  enabled: true
+  selectors:
+    # Path A: feed自带全文+图，以下为回退用
+    article_list: a
+    title: h1
+    content: .duet--article--article-body-component
+    image: img
+
+- name: Artsy
+  url: https://www.artsy.net
+  type: rss
+  category_hint: 艺术与文化
+  enabled: true
+  selectors:
+    article_list: a[href*='/article/']
+    title: h1
+    content: .article-body
+    image: img
+  rss: https://www.artsy.net/rss/news
+- name: Artnet
+  url: https://www.artnet.com
+  type: rss
+  category_hint: 艺术与文化
+  enabled: true
+  selectors:
+    article_list: a[href*='/news/']
+    title: h1
+    content: .article-content
+    image: img
+  rss: https://news.artnet.com/feed
+- name: Colossal
+  url: https://www.thisiscolossal.com
+  type: rss
+  category_hint: 艺术与文化
+  enabled: true
+  selectors:
+    article_list: article a[href]
+    title: h1
+    content: .entry-content
+    image: img
+  rss: https://www.thisiscolossal.com/feed/
+- name: My Modern Met
+  url: https://mymodernmet.com
+  type: rss
+  category_hint: 艺术与文化
+  enabled: true
+  selectors:
+    article_list: article a
+    title: h1
+    content: .entry-content, .post-content
+    image: img
+  rss: https://mymodernmet.com/feed/
+- name: Google Arts & Culture
+  url: https://artsandculture.google.com
+  type: webpage
+  category_hint: 艺术与文化
+  enabled: true
+  selectors:
+    article_list: a[href*='/story/']
+    title: h1, h2
+    content: .content
+    image: img
+- name: Design Miami
+  url: https://www.designmiami.com
+  type: webpage
+  category_hint: 艺术与文化
+  enabled: true
+  selectors:
+    article_list: a[href*='/news/']
+    title: h1
+    content: .content
+    image: img
+- name: Salone Milano
+  url: https://www.salonemilano.it
+  type: webpage
+  max_articles: 5
+  category_hint: 艺术与文化
+  enabled: true
+  selectors:
+    article_list: article a
+    title: h1
+    content: .content
+    image: img
+- name: Sculpture Magazine
+  url: https://sculpturemagazine.art
+  type: webpage
+  category_hint: 艺术与文化
+  enabled: true
+  selectors:
+    article_list: article a
+    title: h1
+    content: .entry-content
+    image: img
+- name: ArchDaily
+  url: https://www.archdaily.com
+  type: rss
+  category_hint: 产品与设计
+  enabled: true
+  selectors:
+    article_list: a[href*='/articles/']
+    title: h1
+    content: .af-body
+    image: img
+  rss: https://www.archdaily.com/rss
+- name: Dezeen
+  url: https://www.dezeen.com
+  type: rss
+  category_hint: 建筑与空间
+  enabled: true
+  selectors:
+    article_list: a[href*='/20']
+    title: h1
+    content: .dezeen-article-body
+    image: img
+  rss: https://www.dezeen.com/feed/
+- name: Designboom
+  url: https://www.designboom.com
+  type: rss
+  category_hint: 建筑与空间
+  enabled: true
+  selectors:
+    article_list: article a
+    title: h1
+    content: .entry-content
+    image: img
+  rss: https://www.designboom.com/feed/
+- name: Domus
+  url: https://www.domusweb.it
+  type: webpage
+  category_hint: 建筑与空间
+  enabled: true
+  selectors:
+    article_list: a[href*='/en/'], article a, .article-link a
+    title: h1
+    content: .article-body
+    image: img
+- name: Architonic
+  url: https://www.architonic.com
+  type: webpage
+  category_hint: 建筑与空间
+  enabled: true
+  selectors:
+    article_list: a[href*='/en/story/']
+    title: h1
+    content: .content
+    image: img
+- name: Architizer
+  url: https://architizer.com
+  type: webpage
+  category_hint: 建筑与空间
+  enabled: true
+  selectors:
+    article_list: a[href*='/blog/']
+    title: h1
+    content: .article-content
+    image: img
+
+- name: Contemporist
+  url: https://www.contemporist.com
+  type: rss
+  rss: https://feeds.feedburner.com/contemporist
+  category_hint: 建筑与空间
+  enabled: true
+  selectors:
+    # Path B: feed 仅含缩略图+链接，正文取自文章页 .entry-content
+    article_list: a
+    title: h1
+    content: .entry-content
+    image: img
+
+- name: The World of Interiors
+  url: https://www.worldofinteriors.com
+  type: rss
+  rss: https://www.worldofinteriors.com/feed/rss
+  category_hint: 建筑与空间
+  enabled: true
+  max_articles: 8
+  selectors:
+    article_list: article a
+    title: h1
+    content: article, .article__body, .body__inner-container, .content
+    image: img
+
+- name: Est Living
+  url: https://estliving.com
+  type: rss
+  rss: https://estliving.com/feed/
+  category_hint: 建筑与空间
+  enabled: true
+  max_articles: 8
+  selectors:
+    article_list: article a
+    title: h1
+    content: .entry-content, article, .post-content
+    image: img
+
+- name: The Local Project
+  url: https://thelocalproject.com.au
+  type: rss
+  rss: https://thelocalproject.com.au/feed/
+  category_hint: 建筑与空间
+  enabled: true
+  max_articles: 8
+  selectors:
+    article_list: article a
+    title: h1
+    content: .entry-content, article, .post-content
+    image: img
+
+- name: Remodelista
+  url: https://www.remodelista.com
+  type: rss
+  rss: https://www.remodelista.com/feed/
+  category_hint: 建筑与空间
+  enabled: true
+  max_articles: 8
+  selectors:
+    article_list: article a
+    title: h1
+    content: .entry-content, article, .post-content
+    image: img
+
+- name: Interior Design
+  url: https://www.interiordesign.net
+  type: rss
+  rss: https://www.interiordesign.net/rss/
+  category_hint: 建筑与空间
+  enabled: true
+  max_articles: 8
+  selectors:
+    article_list: article a
+    title: h1
+    content: .entry-content, article, .post-content
+    image: img
+
+- name: Creative Applications
+  url: https://www.creativeapplications.net
+  type: rss
+  category_hint: 产品与设计
+  enabled: true
+  selectors:
+    article_list: article a
+    title: h1
+    content: .entry-content
+    image: img
+  rss: https://www.creativeapplications.net/feed/
+- name: Core77
+  url: https://www.core77.com
+  type: webpage
+  category_hint: 产品与设计
+  enabled: true
+  selectors:
+    article_list: a[href*='/posts/']
+    title: h1
+    content: .article-content
+    image: img
+- name: It's Nice That
+  url: https://www.itsnicethat.com
+  type: webpage
+  category_hint: 产品与设计
+  enabled: true
+  selectors:
+    article_list: a[href*='/articles/']
+    title: h1
+    content: .article-body
+    image: img
+- name: Creative Boom
+  url: https://www.creativeboom.com
+  type: rss
+  category_hint: 产品与设计
+  enabled: true
+  selectors:
+    article_list: article a
+    title: h1
+    content: .entry-content
+    image: img
+  rss: https://www.creativeboom.com/feed/
+- name: Behance
+  url: https://www.behance.net
+  type: webpage
+  category_hint: 产品与设计
+  enabled: true
+  selectors:
+    article_list: a[href*='/gallery/']
+    title: h1
+    content: main, .Project-description
+    image: img
+- name: Design Milk
+  url: https://design-milk.com
+  type: rss
+  category_hint: 产品与设计
+  enabled: true
+  selectors:
+    article_list: article a
+    title: h1
+    content: .entry-content
+    image: img
+  rss: https://design-milk.com/feed/
+- name: Dezeen Showroom
+  url: https://www.dezeen.com/showroom
+  type: webpage
+  category_hint: 建筑与空间
+  enabled: false
+  selectors:
+    article_list: a[href*='/showroom/']
+    title: h1
+    content: .dezeen-article-body
+    image: img
+- name: Yatzer
+  url: https://www.yatzer.com
+  type: rss
+  category_hint: 产品与设计
+  enabled: true
+  selectors:
+    article_list: article a
+    title: h1
+    content: .entry-content
+    image: img
+  rss: https://www.yatzer.com/feed
+- name: 1stDibs
+  url: https://www.1stdibs.com
+  type: webpage
+  category_hint: 产品与设计
+  enabled: true
+  selectors:
+    article_list: a[href*='/editorial/']
+    title: h1
+    content: .article-content
+    image: img
+- name: Vogue
+  url: https://www.vogue.com
+  type: webpage
+  category_hint: 时尚与风格
+  enabled: true
+  selectors:
+    article_list: a[href*='/article/'], a[href*='/fashion/'], a[href*='/beauty/']
+    title: h1
+    content: .article-body
+    image: img
+- name: GQ
+  url: https://www.gq.com
+  type: rss
+  category_hint: 时尚与风格
+  enabled: true
+  selectors:
+    article_list: a[href*='/story/']
+    title: h1
+    content: .article-body
+    image: img
+  rss: https://www.gq.com/feed/rss
+- name: Highsnobiety
+  url: https://www.highsnobiety.com
+  type: rss
+  category_hint: 时尚与风格
+  enabled: true
+  selectors:
+    article_list: article a
+    title: h1
+    content: .post-body, .article-content
+    image: img
+  rss: https://www.highsnobiety.com/feed/
+- name: MR PORTER
+  url: https://www.mrporter.com/en-us/journal
+  type: webpage
+  category_hint: 时尚与风格
+  enabled: true
+  selectors:
+    article_list: a[href*='/journal/']
+    title: h1
+    content: .content
+    image: img
+- name: Business of Fashion
+  url: https://www.businessoffashion.com
+  type: rss
+  category_hint: 时尚与风格
+  enabled: true
+  selectors:
+    article_list: a[href*='/articles/']
+    title: h1
+    content: .article-body
+    image: img
+  rss: https://www.businessoffashion.com/feed
+
+- name: Hodinkee
+  url: https://www.hodinkee.com
+  type: rss
+  rss: https://www.hodinkee.com/articles/rss.xml
+  category_hint: 珠宝与腕表
+  enabled: true
+  selectors:
+    # Path A: feed自带全文+图，以下为回退用
+    article_list: a
+    title: h1
+    content: .expressive-body-2, .article-content
+    image: img
+
+- name: Wallpaper*
+  url: https://www.wallpaper.com
+  type: rss
+  category_hint: 建筑与空间
+  enabled: true
+  selectors:
+    article_list: a[href*='/design/'], a[href*='/travel/'], a[href*='/architecture/']
+    title: h1
+    content: .article-body
+    image: img
+  rss: https://www.wallpaper.com/rss
+- name: Kinfolk
+  url: https://kinfolk.com
+  type: webpage
+  category_hint: 艺术与文化
+  enabled: true
+  selectors:
+    article_list: article a, .post a
+    title: h1
+    content: .entry-content, .post-content
+    image: img
+- name: Cereal Magazine
+  url: https://www.readcereal.com
+  type: webpage
+  category_hint: 旅行与探索
+  enabled: true
+  selectors:
+    article_list: article a
+    title: h1
+    content: .entry-content
+    image: img
+- name: WIRED
+  url: https://www.wired.com
+  type: webpage
+  category_hint: 科技与生活
+  enabled: true
+  selectors:
+    article_list: a[href*='/story/']
+    title: h1
+    content: .article-body, .body__inner-container
+    image: img
+- name: MIT Technology Review
+  url: https://www.technologyreview.com
+  type: rss
+  max_articles: 5
+  category_hint: 科技与生活
+  enabled: true
+  selectors:
+    article_list: a[href*='/20']
+    title: h1
+    content: .article-body
+    image: img
+  rss: https://www.technologyreview.com/feed/
+- name: The Verge
+  url: https://www.theverge.com
+  type: rss
+  max_articles: 5
+  category_hint: 科技与生活
+  enabled: true
+  selectors:
+    article_list: a[href*='/20']
+    title: h1
+    content: .article-body, .entry-content
+    image: img
+  rss: https://www.theverge.com/rss/index.xml
+- name: Fast Company
+  url: https://www.fastcompany.com
+  type: rss
+  max_articles: 5
+  category_hint: 科技与生活
+  enabled: true
+  selectors:
+    article_list: a[href*='/article/']
+    title: h1
+    content: .article-body
+    image: img
+  rss: https://www.fastcompany.com/latest/rss
+- name: Peter Attia
+  url: https://peterattiamd.com
+  type: rss
+  max_articles: 5
+  category_hint: 健康与养生
+  enabled: true
+  selectors:
+    article_list: a[href*='/blog/']
+    title: h1
+    content: .entry-content, .post-content
+    image: img
+  rss: https://peterattiamd.com/feed/
+- name: Examine
+  url: https://examine.com
+  type: webpage
+  category_hint: 健康与养生
+  enabled: true
+  selectors:
+    article_list: a[href*='/blog/']
+    title: h1
+    content: .article-content
+    image: img
+- name: Huberman Lab
+  url: https://www.hubermanlab.com
+  type: rss
+  category_hint: 健康与养生
+  enabled: true
+  selectors:
+    article_list: a[href*='/episode/']
+    title: h1
+    content: .episode-content, .content
+    image: img
+  rss: https://feeds.megaphone.fm/hubermanlab
+- name: FoundMyFitness
+  url: https://www.foundmyfitness.com
+  type: webpage
+  category_hint: 健康与养生
+  enabled: true
+  selectors:
+    article_list: a[href*='/episodes/']
+    title: h1
+    content: .content
+    image: img
+- name: Pitchfork
+  url: https://pitchfork.com
+  type: rss
+  max_articles: 5
+  category_hint: 音乐与演出
+  enabled: true
+  selectors:
+    article_list: article a
+    title: h1
+    content: .article-body, .body
+    image: img
+  rss: https://pitchfork.com/feed/feed-album-reviews/rss
+- name: The Quietus
+  url: https://thequietus.com
+  type: rss
+  category_hint: 音乐与演出
+  enabled: true
+  selectors:
+    article_list: article a
+    title: h1
+    content: .article-content, .entry-content
+    image: img
+  rss: https://thequietus.com/feed
+- name: Resident Advisor
+  url: https://ra.co
+  type: webpage
+  category_hint: 音乐与演出
+  enabled: false
+  selectors:
+    article_list: a[href*='/articles/']
+    title: h1
+    content: .article-body
+    image: img
+- name: The FADER
+  url: https://www.thefader.com
+  type: rss
+  category_hint: 音乐与演出
+  enabled: true
+  selectors:
+    article_list: article a
+    title: h1
+    content: .article-body
+    image: img
+  rss_url: https://www.thefader.com/feed
+
+- name: Cool Hunting
+  url: https://coolhunting.com
+  type: rss
+  rss: https://coolhunting.com/feed/
+  category_hint: 科技与生活
+
+- name: Input Mag
+  url: https://www.inverse.com/input
+  type: rss
+  rss: https://www.inverse.com/input/feed
+  category_hint: 科技与生活
+
+- name: Uncrate
+  url: https://uncrate.com
+  type: webpage
+  category_hint: 科技与生活
+  selectors:
+    article_list: .content a[href*="/article/"]
+    title: h1
+    content: .post-content
+    image: img
+  category_hint: 科技与生活
+
+- name: Gear Patrol
+  url: https://www.gearpatrol.com
+  type: rss
+  rss: https://www.gearpatrol.com/feed/
+  category_hint: 科技与生活
+
+- name: Leibal
+  url: https://leibal.com
+  type: rss
+  rss: https://leibal.com/feed/
+  category_hint: 产品与设计
+
+- name: Sight Unseen
+  url: https://sightunseen.com
+  type: rss
+  rss: https://sightunseen.com/feed/
+  category_hint: 产品与设计
+
+- name: Yellowtrace
+  url: https://www.yellowtrace.com.au
+  type: rss
+  rss: https://www.yellowtrace.com.au/feed/
+  category_hint: 建筑与空间
+  enabled: true
+  max_articles: 8
+  selectors:
+    article_list: article a
+    title: h1
+    content: .entry-content, article, .post-content
+    image: img
+
+- name: Minimalissimo
+  url: https://minimalissimo.com
+  type: rss
+  rss: https://minimalissimo.com/feed
+  category_hint: 产品与设计
+
+
+- name: Robb Report Hotels
+  url: https://robbreport.com
+  type: rss
+  rss: https://robbreport.com/travel/hotels/feed/
+  category_hint: 精品酒店与度假
+  enabled: true
+  selectors:
+    article_list: a
+    title: h1
+    content: .post-content
+    image: .post-content-image img, .attachment-landscape
+
+- name: Robb Report Destinations
+  url: https://robbreport.com
+  type: rss
+  rss: https://robbreport.com/travel/destinations/feed/
+  category_hint: 旅行与探索
+  enabled: true
+  selectors:
+    article_list: a
+    title: h1
+    content: .post-content
+    image: .post-content-image img, .attachment-landscape
+
+- name: Robb Report Resorts
+  url: https://robbreport.com
+  type: rss
+  rss: https://robbreport.com/travel/resorts/feed/
+  category_hint: 精品酒店与度假
+  enabled: true
+  selectors:
+    article_list: a
+    title: h1
+    content: .post-content
+    image: .post-content-image img, .attachment-landscape
+
+
+- name: Hotel Designs
+  url: https://www.hoteldesigns.net
+  type: rss
+  rss: https://www.hoteldesigns.net/feed/
+  category_hint: 精品酒店与度假
+  enabled: true
+  selectors:
+    # Path A: feed自带全文+图(content:encoded)
+    article_list: a
+    title: h1
+    content: .entry-content
+    image: img
+
+- name: Sleeper
+  url: https://www.sleepermagazine.com
+  type: rss
+  rss: https://www.sleepermagazine.com/feed/
+  category_hint: 精品酒店与度假
+  enabled: true
+  selectors:
+    # Path A: feed自带全文+图(content:encoded)
+    article_list: a
+    title: h1
+    content: .entry-content
+    image: img
+
+- name: Atlas Obscura
+  url: https://www.atlasobscura.com
+  type: rss
+  rss: https://www.atlasobscura.com/feeds/latest
+  category_hint: 旅行与探索
+  enabled: true
+  selectors:
+    article_list: a
+    title: h1
+    content: .DDPageBody  # 正文取自 RSS CDATA, 网页有 CF 盾
+    image: img
+
+- name: Matador
+  url: https://matadornetwork.com
+  type: rss
+  rss: https://matadornetwork.com/feed/
+  category_hint: 旅行与探索
+  enabled: true
+  selectors:
+    # Path A: feed自带全文+图(content:encoded)
+    article_list: a
+    title: h1
+    content: .article-content, .entry-content
+    image: img
+
+- name: The Points Guy
+  url: https://thepointsguy.com
+  type: rss
+  rss: https://thepointsguy.com/feed/
+  category_hint: 旅行与探索
+  enabled: true
+  selectors:
+    # Path A: feed自带全文+图(content:encoded)
+    article_list: a
+    title: h1
+    content: .article-body, .entry-content
+    image: img
+
+- name: Fathom
+  url: https://fathomaway.com
+  type: rss
+  rss: https://fathomaway.com/feed/
+  category_hint: 旅行与探索
+  enabled: true
+  selectors:
+    # Path A: description含全文+图(HTML-escaped)
+    article_list: a
+    title: h1
+    content: .post-content, .entry-content
+    image: img
+
+- name: Suitcase
+  url: https://suitcasemag.com
+  type: rss
+  rss: https://suitcasemag.com/feed/
+  category_hint: 旅行与探索
+  enabled: true
+  selectors:
+    # Path B: feed为摘要，文章页服务端渲染
+    article_list: a
+    title: h1
+    content: .article-content-richtext, .article-content
+    image: img
+
+- name: Condé Nast Traveler
+  url: https://www.cntraveler.com
+  type: rss
+  rss: https://www.cntraveler.com/feed/rss
+  category_hint: 精品酒店与度假
+  enabled: false
+  selectors:
+    article_list: a.SummaryItemHedLink
+    title: h1
+    content: .article-body
+    image: img
+
+- name: Lonely Planet
+  url: https://www.lonelyplanet.com
+  type: rss
+  rss: https://www.lonelyplanet.com/news/feed
+  category_hint: 精品酒店与度假
+  enabled: true
+  selectors:
+    article_list: a
+    title: h1
+    content: .post-content
+    image: img
+
+- name: Engadget
+  url: https://www.engadget.com
+  type: rss
+  rss: https://www.engadget.com/rss.xml
+  category_hint: 科技与生活
+  enabled: true
+  selectors:
+    article_list: a
+    title: h1
+    content: .article-text
+    image: img
+
+- name: New Atlas
+  url: https://newatlas.com
+  type: rss
+  rss: https://newatlas.com/feed/
+  category_hint: 科技与生活
+  enabled: true
+  selectors:
+    article_list: a
+    title: h1
+    content: .entry-content
+    image: img
+
+- name: The Awesomer
+  url: https://theawesomer.com
+  type: rss
+  rss: https://theawesomer.com/feed/
+  category_hint: 科技与生活
+  enabled: true
+  selectors:
+    article_list: a
+    title: h1
+    content: .entry-content
+    image: img
+
+- name: HiConsumption
+  url: https://hiconsumption.com
+  type: rss
+  rss: https://hiconsumption.com/feed/
+  category_hint: 科技与生活
+  enabled: true
+  selectors:
+    article_list: a
+    title: h1
+    content: .entry-content
+    image: img
+
+- name: The Gadget Flow
+  url: https://thegadgetflow.com
+  type: rss
+  rss: https://thegadgetflow.com/feed/
+  category_hint: 科技与生活
+  enabled: true
+  selectors:
+    article_list: a
+    title: h1
+    content: .entry-content
+    image: img
+
+- name: Yanko Design
+  url: https://www.yankodesign.com
+  type: rss
+  rss: https://www.yankodesign.com/feed/
+  category_hint: 产品与设计
+  enabled: true
+  selectors:
+    article_list: a
+    title: h1
+    content: .entry-content
+    image: img
+
+- name: Kickstarter Tech
+  url: https://www.kickstarter.com/discover/advanced?category_id=16&sort=newest
+  type: webpage
+  category_hint: 科技与生活
+  enabled: true
+  selectors:
+    article_list: a.project-thumbnail
+    title: h1
+    content: .project-description
+    image: img
+
+- name: The Tigerhood
+  url: https://www.thetigerhood.com
+  type: webpage
+  category_hint: 科技与生活
+  enabled: true
+  selectors:
+    article_list: a.post-link
+    title: h1
+    content: .entry-content
+    image: img
+
+- name: Acquire Mag
+  url: https://acquiremag.com
+  type: webpage
+  category_hint: 科技与生活
+  enabled: true
+  selectors:
+    article_list: a.article-link
+    title: h1
+    content: .entry-content
+    image: img
+
+- name: Indiegogo Tech
+  url: https://www.indiegogo.com/explore/technology
+  type: webpage
+  category_hint: 科技与生活
+  enabled: true
+  selectors:
+    article_list: a.discoverableCard-link
+    title: h1
+    content: .campaign-description
+    image: img

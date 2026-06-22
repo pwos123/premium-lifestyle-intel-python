@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>文章审核 — 三关工作台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC",sans-serif;background:#0a0a0f;color:#e0e0e0;min-height:100vh}
+.hdr{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:20px 24px;border-bottom:1px solid #c9a96e22;position:sticky;top:0;z-index:100}
+.hdr h1{font-size:18px;color:#c9a96e;font-weight:600}
+.hdr .stats{font-size:12px;color:#888;margin-top:4px}
+.toolbar{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
+.toolbar button{padding:5px 14px;border:1px solid #c9a96e44;background:transparent;color:#c9a96e;border-radius:4px;cursor:pointer;font-size:12px;transition:all .2s}
+.toolbar button:hover{background:#c9a96e22}
+.toolbar button.on{background:#c9a96e;color:#0a0a0f}
+.toolbar .batch{background:#2d7a3a;border-color:#2d7a3a;color:#fff;margin-left:auto}
+.tier-badge{padding:2px 10px;border-radius:4px;font-size:11px;font-weight:800;letter-spacing:.5px}
+.tier-A{background:#c9a96e;color:#0a0a0f}
+.tier-B{background:#4a90d9;color:#fff}
+.tier-C{background:#555;color:#ccc}
+.tier-D{background:#3a1a1a;color:#c44}
+.funnel{font-size:11px;color:#666;margin-left:12px}
+.funnel span{color:#c9a96e;font-weight:600}
+.container{max-width:880px;margin:0 auto;padding:16px}
+.card{background:#1a1a2e;border:1px solid #fff1;border-radius:12px;margin-bottom:14px;overflow:hidden;transition:border-color .2s}
+.card:hover{border-color:#c9a96e44}
+.card.done{opacity:.35;pointer-events:none}
+.card-img{width:100%;height:200px;object-fit:cover;display:block}
+.card-body{padding:14px 18px}
+.meta{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.badge-cat{padding:2px 8px;background:#fff1;border-radius:3px;font-size:10px;color:#aaa}
+.dims{font-size:11px;color:#888;margin-left:4px}
+.src{font-size:11px;color:#555}
+.title{font-size:16px;font-weight:600;color:#fff;margin-bottom:6px;line-height:1.4}
+.one-line{font-size:13px;color:#c9a96e;margin-bottom:8px;padding:4px 10px;background:#c9a96e0a;border-radius:4px;border-left:2px solid #c9a96e44}
+.rationale{font-size:12px;color:#a0c4ff;padding:6px 10px;background:#a0c4ff0a;border-left:2px solid #a0c4ff44;border-radius:0 4px 4px 0;margin-bottom:8px}
+.summary{font-size:13px;color:#aaa;line-height:1.7;margin-bottom:8px}
+.fit-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.fit-tags span{padding:2px 8px;background:#c9a96e18;border:1px solid #c9a96e22;border-radius:3px;font-size:10px;color:#c9a96e}
+.score{font-size:13px;font-weight:600;color:#999}
+.failed{font-size:11px;color:#c44;padding:4px 8px;background:#c4418;border-radius:3px;margin-bottom:6px}
+.actions{display:flex;gap:8px;padding-top:10px;border-top:1px solid #fff1}
+.actions button{flex:1;padding:8px;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-weight:600;transition:all .2s}
+.btn-ok{background:#2d7a3a;color:#fff}
+.btn-ok:hover{background:#388e3c}
+.btn-no{background:#c62828;color:#fff}
+.btn-no:hover{background:#e53935}
+.btn-maybe{background:#c9a96e;color:#0a0a0f}
+.btn-maybe:hover{background:#d4b87a}
+.url{font-size:11px;color:#444;margin-top:6px;word-break:break-all}
+.url a{color:#6a9fd8;text-decoration:none}
+.empty{text-align:center;color:#555;padding:60px 20px;font-size:15px}
+.section-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>📋 文章审核 — 三关工作台</h1>
+  <div class="stats">
+    漏斗: <span class="funnel"><span>557</span>→G1</span>
+    <span class="funnel"><span>326</span>→G2</span>
+    <span class="funnel"><span>75</span>→G3</span>
+    <span class="funnel"><span>28</span>入选</span>
+    &nbsp;|&nbsp; 待审核: 557 | 已通过: 55 | 已拒绝: 1
+  </div>
+  <div class="toolbar">
+    <button class="on" onclick="filterAll(this)">全部</button>
+    <button onclick="filterTier('A',this)">A档</button>
+    <button onclick="filterTier('B',this)">B档</button>
+    <button onclick="filterTier('C',this)">C档</button>
+    <button onclick="filterTier('D',this)">D档</button>
+    
+    <button onclick="filterCat('美食与美酒',this)">美食与美酒</button>
+    
+    <button onclick="filterCat('音乐与演出',this)">音乐与演出</button>
+    
+    <button onclick="filterCat('珠宝与腕表',this)">珠宝与腕表</button>
+    
+    <button onclick="filterCat('产品与设计',this)">产品与设计</button>
+    
+    <button onclick="filterCat('汽车与出行',this)">汽车与出行</button>
+    
+    <button onclick="filterCat('艺术与文化',this)">艺术与文化</button>
+    
+    <button onclick="filterCat('时尚与风格',this)">时尚与风格</button>
+    
+    <button onclick="filterCat('精品酒店与度假',this)">精品酒店与度假</button>
+    
+    <button onclick="filterCat('建筑与空间',this)">建筑与空间</button>
+    
+    <button onclick="filterCat('科技与生活',this)">科技与生活</button>
+    
+    <button class="batch" onclick="approveAll()">✅ 全部通过</button>
+  </div>
+</div>
+<div class="container">
+
+<div class="card" id="c101" data-tier="A" data-cat="艺术与文化" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/302c09e35433.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">艺术与文化</span>
+      <span class="src">Design Milk</span>
+      <span class="score">89分</span>
+    </div>
+    <div class="title">The Craft of Kawai Kanjiro: Locating Truth and Beauty in Japanese Folk Pottery</div>
+    <div class="one-line">🎯 河井宽次郎京都故居：陶艺家生活工坊原貌，侘寂即日常</div>
+    <div class="rationale">🏆 与候选449同属陶瓷类，但后者在技术转化门道和艺术坐标延伸上更胜一筹，且候选1的‘侘寂美学’虽契合但泛泛，不如449具体。</div>
+    <div class="summary">文章以作者亲身探访日本陶艺家河井宽次郎在京都的故居博物馆为主线，介绍了河井宽次郎的生平与民艺运动。核心亮点在于这座隐藏在传统町屋中的博物馆，完美融合了东方侘寂美学与极简主义，通过原汁原味的生活空间展示，让访客直观感受日常物品中蕴含的真理与美。关键细节包括建筑的外观设计、内部陈设的原始状态，以及河井宽次郎与民艺运动创始人柳宗悦等人的历史关联。这篇文章适合关注艺术收藏、东方美学和深度文化体验的高端读者，它不仅提供了一种独特的审美视角，还能启发对生活本质的思考。</div>
+    
+    <div class="fit-tags">
+      <span>动手做（陶瓷）</span><span>看门道（故居博物馆即工坊+生活现场原状陈列）</span><span>侘寂美学与东方哲学（契合佛教与古典诗词审美维度）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(101,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(101,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(101,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://design-milk.com/the-craft-of-kawai-kanjira-locating-truth-and-beauty-in-japanese-folk-pottery/" target="_blank">https://design-milk.com/the-craft-of-kawai-kanjira-locating-truth-and-beauty-in-</a></div>
+  </div>
+</div>
+
+<div class="card" id="c301" data-tier="A" data-cat="艺术与文化" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/1ddc353e3939.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋3 落地2 密度3</span>
+      <span class="badge-cat">艺术与文化</span>
+      <span class="src">Sculpture Magazine</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">Bertil Vallien - Sculpture</div>
+    <div class="one-line">🎯 砂铸玻璃工坊实录+雅努斯双面神解构，门道十足</div>
+    <div class="rationale">🏆 小组赛淘汰</div>
+    <div class="summary">深度报道瑞典玻璃艺术大师Bertil Vallien的纽约个展，解析其独创砂铸技法与双面神雅努斯等神话意象，兼具艺术史厚度与工艺美学，适合高端读者拓展当代玻璃艺术视野。</div>
+    
+    <div class="fit-tags">
+      <span>砂铸技法过程详解（熔融玻璃入砂模）</span><span>双面神雅努斯神话意象与工坊级转化（面内藏面/斧刃剖开后脑显第二脸）</span><span>Kosta Boda工坊双轨实践（灰贝雷工业设计 vs 红贝雷艺术探索）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(301,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(301,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(301,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://sculpturemagazine.art/bertil-vallien-2/" target="_blank">https://sculpturemagazine.art/bertil-vallien-2/</a></div>
+  </div>
+</div>
+
+<div class="card" id="c306" data-tier="A" data-cat="艺术与文化" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/7813b424e7f8.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋3 落地2 密度3</span>
+      <span class="badge-cat">艺术与文化</span>
+      <span class="src">Sculpture Magazine</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">Jennie Jieun Lee - Sculpture</div>
+    <div class="one-line">🎯 放大釉试片当壁画，废窑变祭坛——陶瓷控的工艺狂想</div>
+    <div class="rationale">🏆 小组赛淘汰</div>
+    <div class="summary">本文深入报道了珍妮·李恩·李在奥尔德里奇当代艺术博物馆的个展，聚焦其从彩色陶瓷到材料实验的转型，展现了对工艺与美学的极致追求。适合关注当代艺术与陶瓷工艺的高端读者，内容专业且富有视觉冲击力。</div>
+    
+    <div class="fit-tags">
+      <span>彩色陶瓷与 glaze 实验（命中‘动手做：陶瓷’+‘看门道：釉料测试/过程模型’）</span><span>废弃电窑改造为雕塑基座（命中‘看门道：工坊/材料再利用/过程思维’）</span><span>《Slow Cool, 15 min hold》放大釉试片×聚酯丝绸（命中‘科技×艺术：材料转译+沉浸式尺度’）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(306,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(306,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(306,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://sculpturemagazine.art/jennie-jieun-lee/" target="_blank">https://sculpturemagazine.art/jennie-jieun-lee/</a></div>
+  </div>
+</div>
+
+<div class="card" id="c323" data-tier="A" data-cat="建筑与空间" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/aa3f2a2a2b9e.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">建筑与空间</span>
+      <span class="src">Designboom</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">crafting with code: how architects reinvent making through robotics and digital fabrication</div>
+    <div class="one-line">🎯 机器人雕木、算法烧瓷——建筑手作的幕后黑科技</div>
+    <div class="rationale">🏆 内容泛泛，虽涉及机器人/数字建造，但案例分散，缺乏像候选2或候选1那样与DJ个人创作兴趣（家具/雕塑）的直接关联，且落地模糊。</div>
+    <div class="summary">本文探讨数字技术如何复兴建筑手工艺，案例涵盖BIG、Studio RAP、ETH Zurich等前沿实践，融合科技与设计美学，对关注建筑创新与高端生活方式的高端读者极具启发。</div>
+    
+    <div class="fit-tags">
+      <span>科技×艺术（机器人/数字建造/AI驱动的工艺）</span><span>动手做（陶瓷、木构、3D打印实体建造）</span><span>看门道（BIG威尼斯机器人木雕工坊、Studio RAP算法陶瓷生成过程）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(323,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(323,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(323,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.designboom.com/architecture/crafting-code-architects-robotics-digital-fabrication/" target="_blank">https://www.designboom.com/architecture/crafting-code-architects-robotics-digita</a></div>
+  </div>
+</div>
+
+<div class="card" id="c340" data-tier="A" data-cat="艺术与文化" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/733aa9176407.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋3 落地2 密度3</span>
+      <span class="badge-cat">艺术与文化</span>
+      <span class="src">It's Nice That</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">Koto revives an 80-year-old wordmark to rebrand Norton Museum of Art</div>
+    <div class="one-line">🎯 诺顿美术馆重塑：重绘曼希普印章+双色池系统，门道十足</div>
+    <div class="rationale">🏆 品牌重塑内容虽专业，但相比候选600和449，缺乏与DJ具体兴趣点的强关联，且‘看门道’程度不如前两者深入。</div>
+    <div class="summary">本文详细解析了Koto为诺顿美术馆进行的品牌重塑设计，从历史字标复兴、印章重绘到色彩体系与建筑呼应，展现了高端文化机构如何通过设计传递空间体验与艺术精神，对设计、艺术爱好者极具启发。</div>
+    
+    <div class="fit-tags">
+      <span>草图与过程模型展（Koto团队重绘Diana印章、调整字标适配小屏与建筑语境）</span><span>艺术坐标（保罗·曼希普Paul Manship雕塑，与席勒/克里姆特同属表现主义脉络，且为美术馆创始人委托）</span><span>看门道（详述色彩双池系统如何呼应佛罗里达景观+馆藏动态轮换，明确‘让艺术塑造视觉体验’的设计逻辑）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(340,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(340,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(340,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.itsnicethat.com/articles/koto-norton-museum-of-art-graphic-design-project-030626" target="_blank">https://www.itsnicethat.com/articles/koto-norton-museum-of-art-graphic-design-pr</a></div>
+  </div>
+</div>
+
+<div class="card" id="c448" data-tier="A" data-cat="艺术与文化" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/b5fc0e98e2bd.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">艺术与文化</span>
+      <span class="src">Wallpaper*</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">Gener8ion's future is dark, funny and strangely beautiful</div>
+    <div class="one-line">🎯 AI情绪影像×ABBA头 banging×6G致幻校服秀——他的赛博工坊现场</div>
+    <div class="rationale">🏆 同为伦敦展览，但埃舍尔展（候选357）在艺术史地位和‘看门道’深度上更优，且候选4的AI情绪影像虽有趣但落地模糊（2018年拍摄2024年公映），确定性较低。</div>
+    <div class="summary">本文介绍Gener8ion在伦敦180 Studios的展览，融合反乌托邦电影、AI艺术与音乐视频，呈现黑暗荒诞又奇美的近未来愿景。内容兼具艺术深度与视觉冲击力，适合关注当代艺术与先锋文化的读者。</div>
+    
+    <div class="fit-tags">
+      <span>AI艺术×电影×音乐视频（命中'科技×艺术'兴奋点）</span><span>幕后创作逻辑明确：Gavras与Surkin合作、'Storm'作为专辑《Love & Tears》先导单曲、2018年拍摄但2024年才公映的AI情绪影像（命中'看门道/过程/幕后'）</span><span>反乌托邦视觉语言含高密度设计细节：'blazer-clad schoolboys headbanging to ABBA while stoned on melted-down 6G'（呼应'童趣好玩+科幻+荒诞美学'，近似奈良美智式乖戾感与村上隆超扁平狂欢的混合张力）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(448,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(448,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(448,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.wallpaper.com/art/music/gener8ion-exhibition-visions-of-2034" target="_blank">https://www.wallpaper.com/art/music/gener8ion-exhibition-visions-of-2034</a></div>
+  </div>
+</div>
+
+<div class="card" id="c225" data-tier="A" data-cat="艺术与文化" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/0ffb4e52edfa.jpeg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋2 落地3 密度2</span>
+      <span class="badge-cat">艺术与文化</span>
+      <span class="src">Artsy</span>
+      <span class="score">78分</span>
+    </div>
+    <div class="title">Chloe Wise paints Olivia Rodrigo for a new limited-edition album release.</div>
+    <div class="one-line">🎯 Olivia新专黑胶封面是Chloe Wise停画半年后的唯一油画</div>
+    <div class="rationale">🏆 小组赛淘汰</div>
+    <div class="summary">音乐与艺术跨界合作，艺术家Chloe Wise为当红歌手Olivia Rodrigo创作限量黑胶封面，兼具收藏价值与艺术深度。Wise的创作背景与心理肖像风格值得关注，适合对当代艺术与流行文化交汇感兴趣的高端读者。</div>
+    
+    <div class="fit-tags">
+      <span>当代艺术家为流行文化IP创作限量黑胶封面（科技×艺术×IP的轻量级交汇）</span><span>心理肖像风格+过程线索：提及‘Carve our names是其过去六个月唯一油画’，暗示创作稀缺性与专注度</span><span>艺术家有雕塑/装置/影像多媒介实践（呼应DJ对沉浸式/数字艺术/AI/机器人/科幻的兴趣延伸）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(225,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(225,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(225,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.artsy.net/article/artsy-editorial-chloe-wise-paints-olivia-rodrigo-new-limited-edition-album-release" target="_blank">https://www.artsy.net/article/artsy-editorial-chloe-wise-paints-olivia-rodrigo-n</a></div>
+  </div>
+</div>
+
+<div class="card" id="c322" data-tier="A" data-cat="建筑与空间" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/e95487b0b923.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">建筑与空间</span>
+      <span class="src">Designboom</span>
+      <span class="score">78分</span>
+    </div>
+    <div class="title">single-stem vases reinterpret number 1 through porcelain, bronze, and wood</div>
+    <div class="one-line">🎯 数字‘1’为母题，三地手作器物解构工艺门道</div>
+    <div class="rationale">🏆 ‘数字1为母题’的工艺解构虽有趣，但整体偏泛文化介绍，缺乏像候选1那样的具体艺术坐标或像候选2那样的技术叙事深度，且与候选1、2在‘动手做’维度上同质，多样性不足。</div>
+    <div class="summary">将极简数字造型与日本三大传统工艺结合，设计概念清晰且富有文化深度。适合关注工艺美学、日式设计及生活器物的高端读者，兼具视觉美感与收藏价值。</div>
+    
+    <div class="fit-tags">
+      <span>动手做（陶瓷/青铜/木雕三大工艺实作）</span><span>看门道（同一数字造型在三种地域工艺中的材料响应与制作逻辑差异）</span><span>艺术坐标（极简造型+日本传统工艺，呼应高迪/沃霍尔对符号的再编码，亦近奈良美智的单形叙事）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(322,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(322,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(322,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.designboom.com/design/single-stem-vases-number-1-porcelain-bronze-wood-kumanote-1rin/" target="_blank">https://www.designboom.com/design/single-stem-vases-number-1-porcelain-bronze-wo</a></div>
+  </div>
+</div>
+
+<div class="card" id="c349" data-tier="A" data-cat="艺术与文化" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/cc272661fb43.gif" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋3 落地2 密度3</span>
+      <span class="badge-cat">艺术与文化</span>
+      <span class="src">It's Nice That</span>
+      <span class="score">78分</span>
+    </div>
+    <div class="title">A peek into how Pinkpantheress’ new noughties-infused music video was created with a 21-year-old VFX visionary</div>
+    <div class="one-line">🎯 Blender造钢琴键电梯，Discord通宵赶工的千禧怀旧MV幕后</div>
+    <div class="rationale">🏆 小组赛淘汰</div>
+    <div class="summary">本文揭示了年轻视效天才如何用Blender和Discord协作，为流行音乐MV注入千禧年怀旧美学与超现实创意，是数字艺术与流行文化碰撞的鲜活案例，适合关注当代视觉艺术与音乐跨界的高端读者。</div>
+    
+    <div class="fit-tags">
+      <span>Blender工坊级制作过程（钢琴键 escalators + 旋律匹配逻辑）</span><span>数字艺术×流行音乐的跨界实践（Cyriak式超现实动效、Sugarbabes千禧美学）</span><span>Discord协同的青年创作现场（游戏文化底色+实时语音攻坚）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(349,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(349,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(349,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.itsnicethat.com/articles/michos-pinkpantheress-girl-like-me-animation-film-project-020626" target="_blank">https://www.itsnicethat.com/articles/michos-pinkpantheress-girl-like-me-animatio</a></div>
+  </div>
+</div>
+
+<div class="card" id="c433" data-tier="A" data-cat="建筑与空间" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/140573eb385c.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">建筑与空间</span>
+      <span class="src">Wallpaper*</span>
+      <span class="score">78分</span>
+    </div>
+    <div class="title">Tarform’s electric motorcycles blend Swedish style with American attitude</div>
+    <div class="one-line">🎯 手作电摩工坊+北欧设计基因，坐进驾驶舱就是移动雕塑</div>
+    <div class="rationale">🏆 小组赛淘汰</div>
+    <div class="summary">本文介绍Tarform电动摩托车如何将斯堪的纳维亚设计美学（Arne Jacobsen、Alvar Aalto风格）融入两轮交通工具，强调手工打造、可持续材料与高端定价（$48,000），适合关注设计、出行方式与工艺美学的高端读者。</div>
+    
+    <div class="fit-tags">
+      <span>斯堪的纳维亚设计美学（Arne Jacobsen、Alvar Aalto）直击其美术史兴趣与设计本体敏感</span><span>手工打造+ Brooklyn 工坊叙事，满足‘看门道’（过程/工坊）兴奋点</span><span>电动摩托车作为科技×工业设计载体，呼应‘科技×艺术’兴奋维度（类比AI/机器人/科幻语境下的造物）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(433,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(433,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(433,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.wallpaper.com/transportation/tarform-electric-motorbikes-vera" target="_blank">https://www.wallpaper.com/transportation/tarform-electric-motorbikes-vera</a></div>
+  </div>
+</div>
+
+<div class="card" id="c163" data-tier="A" data-cat="产品与设计" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/474bdf4cd7f2.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋3 落地3 密度2</span>
+      <span class="badge-cat">产品与设计</span>
+      <span class="src">Core77</span>
+      <span class="score">75分</span>
+    </div>
+    <div class="title">A Steel and Brass Monument to Vinyl Records</div>
+    <div class="one-line">🎯 黑胶DJ台×意大利70年代金属工艺，可定制的桌面雕塑</div>
+    <div class="rationale">🏆 与164内容高度同质（同一产品不同信源），但164的兴奋点标签更精准命中Gabriella Crespi灵感，且摘要更简洁有力，故淘汰163保留164。</div>
+    <div class="summary">这是一款融合1970年代意大利现代主义美学与当代极简设计的DJ控制台，采用不锈钢和黄铜材质，兼具功能性与艺术感。适合对高端设计、黑胶文化及定制家具感兴趣的读者。</div>
+    
+    <div class="fit-tags">
+      <span>黑胶文化（DJ本人是敞篷法拉利车主+深度音乐爱好者，黑胶属其身份符号）</span><span>1970年代意大利现代主义美学（命中‘设计史’兴奋点，且与克里姆特/席勒同属装饰性现代主义脉络）</span><span>不锈钢+黄铜材质工坊级工艺（呼应‘看门道’——材质对比、金属加工、Gabriella Crespi混合金属参考）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(163,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(163,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(163,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.core77.com/posts/144448/A-Steel-and-Brass-Monument-to-Vinyl-Records?utm_source=core77&utm_medium=from_tile_image" target="_blank">https://www.core77.com/posts/144448/A-Steel-and-Brass-Monument-to-Vinyl-Records?</a></div>
+  </div>
+</div>
+
+<div class="card" id="c150" data-tier="A" data-cat="建筑与空间" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/64b024fadde8.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋3 落地3 密度2</span>
+      <span class="badge-cat">建筑与空间</span>
+      <span class="src">Domus</span>
+      <span class="score">72分</span>
+    </div>
+    <div class="title">Le mattonelle che si montano e smontano come Lego: non a caso arrivano dalla Danimarca</div>
+    <div class="one-line">🎯 像乐高一样拼拆的瓷砖，亲手改宅不砸墙</div>
+    <div class="rationale">🏆 小组赛淘汰</div>
+    <div class="summary">本文介绍一款来自丹麦、可像乐高一样自由拼装拆卸的瓷砖系统，专为租赁住宅和民宿设计，强调零浪费和个性化。虽非顶级奢华，但其创新设计理念和可持续性对高端生活方式读者有启发价值。</div>
+    
+    <div class="fit-tags">
+      <span>动手做（大颗粒乐高式拼装逻辑）</span><span>可持续设计×工坊思维（零浪费、可重用、模块化系统）</span><span>空间偏好适配（高楼/简洁空间中快速个性化改造）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(150,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(150,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(150,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.domusweb.it/it/notizie/gallery/2026/06/08/click-n-tile-mattonelle-smontabili-lego-danimarca.html" target="_blank">https://www.domusweb.it/it/notizie/gallery/2026/06/08/click-n-tile-mattonelle-sm</a></div>
+  </div>
+</div>
+
+<div class="card" id="c216" data-tier="A" data-cat="美食与美酒" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/14220e97a6f9.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋2 落地3 密度2</span>
+      <span class="badge-cat">美食与美酒</span>
+      <span class="src">Punch</span>
+      <span class="score">72分</span>
+    </div>
+    <div class="title">The Ultimate Guide to Cocktail Glassware</div>
+    <div class="one-line">🎯 鸡尾酒杯的形、质、用全解析，专治调酒控的器物瘾</div>
+    <div class="rationale">🏆 与215同属杯具主题，但216偏通用选购指南，兴奋点标签的‘高坐姿好视野的车’关联牵强；215的行业视角和工艺细节更独特，且同质内容只选一条，215胜出。</div>
+    <div class="summary">这是一篇关于鸡尾酒杯具的专业选购指南，内容实用且具参考价值，适合对调酒和家庭酒吧有品味追求的高端读者。文章来自知名酒类媒体 Punch，推荐了经典与潮流杯具，兼具功能性与美学。</div>
+    
+    <div class="fit-tags">
+      <span>威士忌与调酒（明确口味偏好）</span><span>高坐姿好视野的车/敞篷法拉利车主→重视器物手感与视觉节奏（杯具的‘look and feel’被重点描述）</span><span>设计师出身→对玻璃器形比例、功能与美学平衡敏感（如'Well-proportioned and sturdy without feeling clunky'）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(216,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(216,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(216,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://punchdrink.com/articles/ultimate-best-guide-to-cocktail-glassware/" target="_blank">https://punchdrink.com/articles/ultimate-best-guide-to-cocktail-glassware/</a></div>
+  </div>
+</div>
+
+<div class="card" id="c162" data-tier="A" data-cat="产品与设计" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/3850cd224f75.jpeg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋3 落地2 密度3</span>
+      <span class="badge-cat">产品与设计</span>
+      <span class="src">Core77</span>
+      <span class="score">65分</span>
+    </div>
+    <div class="title">An Overproduced Day Display by an Industrial Designer's "Stupid Engineering" Project</div>
+    <div class="one-line">🎯 铝材粗野主义日历：用‘愚蠢工程’解构设计本质</div>
+    <div class="rationale">🏆 粗野主义美学和幽默感有趣，但‘日历’功能对DJ的实用性和场景匹配度低于前三名，且落地确定性（个人项目）不如其他候选明确。</div>
+    <div class="summary">这是一款工业设计师的趣味创作，以粗野主义美学和精密铝材工艺呈现日期显示功能，兼具设计巧思与幽默感。虽非传统高端生活品，但体现了设计思维与工艺细节，值得设计爱好者关注。</div>
+    
+    <div class="fit-tags">
+      <span>粗野主义美学（呼应席勒/基弗的视觉张力与工业感）</span><span>精密铝材工艺+草图级设计思维（设计师出身+看门道：'stupid solution to a stupid problem'即过程哲学）</span><span>工业设计师个人项目→动手做+幽默感（契合他本人画画/做设计/童趣好玩三重身份）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(162,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(162,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(162,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.core77.com/posts/144449/An-Overproduced-Day-Display-by-an-Industrial-Designers-Stupid-Engineering-Project?utm_source=core77&utm_medium=from_title" target="_blank">https://www.core77.com/posts/144449/An-Overproduced-Day-Display-by-an-Industrial</a></div>
+  </div>
+</div>
+
+<div class="card" id="c168" data-tier="A" data-cat="产品与设计" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/2bb9d095abb9.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋2 落地3 密度2</span>
+      <span class="badge-cat">产品与设计</span>
+      <span class="src">Core77</span>
+      <span class="score">65分</span>
+    </div>
+    <div class="title">The Monza Minimalist Shelf Bracket</div>
+    <div class="one-line">🎯 极简工业支架，设计师亲手切板，20kg承重</div>
+    <div class="rationale">🏆 小组赛淘汰</div>
+    <div class="summary">这是一款极简设计的搁板支架，由资深工业设计师打造，体现了减法的设计哲学。虽非高端奢侈品，但设计精良、材质考究，适合关注极简美学和工业设计的高端读者。</div>
+    
+    <div class="fit-tags">
+      <span>工业设计师出身（与DJ本人设计师背景同频）</span><span>减法设计哲学（呼应其美术史/设计本体论兴趣）</span><span>不锈钢材质+20kg承重+可定制切板（动手做/工坊感细节）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(168,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(168,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(168,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.core77.com/posts/144433/The-Monza-Minimalist-Shelf-Bracket?utm_source=core77&utm_medium=from_title" target="_blank">https://www.core77.com/posts/144433/The-Monza-Minimalist-Shelf-Bracket?utm_sourc</a></div>
+  </div>
+</div>
+
+<div class="card" id="c175" data-tier="A" data-cat="产品与设计" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/2bb9d095abb9.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      
+      <span class="dims">兴奋2 落地3 密度2</span>
+      <span class="badge-cat">产品与设计</span>
+      <span class="src">Core77</span>
+      <span class="score">65分</span>
+    </div>
+    <div class="title">The Monza Minimalist Shelf Bracket</div>
+    <div class="one-line">🎯 极简钢架+可定制木板，设计师同款落地利器</div>
+    <div class="rationale">🏆 小组赛淘汰</div>
+    <div class="summary">这是一款极简设计的搁板支架，体现了工业设计中的减法美学，适合关注设计细节和家居美学的读者，但内容较为单一，缺乏深度故事或文化背景。</div>
+    
+    <div class="fit-tags">
+      <span>极简工业设计（契合其设计师出身与简洁空间偏好）</span><span>不锈钢材质+20kg承重（动手做/家具改造的务实细节）</span><span>英国设计师Michael Marriott本人可定制切板（小众匠人感与私享服务暗示）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(175,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(175,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(175,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.core77.com/posts/144433/The-Monza-Minimalist-Shelf-Bracket?utm_source=public_sidebar" target="_blank">https://www.core77.com/posts/144433/The-Monza-Minimalist-Shelf-Bracket?utm_sourc</a></div>
+  </div>
+</div>
+
+<div class="card" id="c316" data-tier="A" data-cat="艺术与文化" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/35d4f313252f.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#1</span>
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">艺术与文化</span>
+      <span class="src">ArchDaily</span>
+      <span class="score">88分</span>
+    </div>
+    <div class="title">"The Century of Gehry": Frank Gehry Retrospective Opens at the Serralves Museum in Porto</div>
+    <div class="one-line">🎯 盖里手稿+大模型+西扎建筑，双神对话现场</div>
+    <div class="rationale">🏆 直接命中DJ的‘艺术坐标’——盖里解构主义对席勒线条的深层共鸣，且西扎建筑的双重大师对话与‘看门道’（手稿+原尺寸模型）叠加，是这组中勾选可能性和体验满意度最高的内容。</div>
+    <div class="summary">弗兰克·盖里是当代最具影响力的建筑大师之一，其回顾展在阿尔瓦罗·西扎设计的博物馆举办，双重建筑艺术价值极高。展览涵盖从自宅到古根海姆等经典作品，适合设计、艺术爱好者深度品鉴。</div>
+    
+    <div class="fit-tags">
+      <span>高迪同级的建筑坐标（盖里是服务对象明确关注的‘艺术坐标’中隐含的当代对标人物，其解构主义与席勒/克里姆特的线条张力、基弗的物质性有深层共鸣）</span><span>原尺寸模型+草图+过程雕塑展（命中‘看门道’核心兴奋点：工坊级过程呈现）</span><span>展览在西扎建筑中举办（双重大师对话，契合其‘空间偏好’中对建筑本体语言的敏感与‘艺术坐标’中对现代主义谱系的兴趣）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(316,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(316,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(316,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.archdaily.com/1042273/the-century-of-gehry-frank-gehry-retrospective-opens-at-the-serralves-museum-in-porto" target="_blank">https://www.archdaily.com/1042273/the-century-of-gehry-frank-gehry-retrospective</a></div>
+  </div>
+</div>
+
+<div class="card" id="c158" data-tier="A" data-cat="汽车与出行" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/06505ec4e752.jpeg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#1</span>
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">汽车与出行</span>
+      <span class="src">Domus</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">La Nuvolari non è solo una supercar: è il futuro del design di Audi</div>
+    <div class="one-line">🎯 奥迪超跑Nuvolari：F1技术+钛色设计语言，他爱的‘会开的雕塑’</div>
+    <div class="rationale">🏆 相比候选2和3（同源Core77报道），Domus版本作为设计类权威媒体，对F1技术下放、钛色设计语言等细节的挖掘更深入，且与DJ‘会开的雕塑’审美偏好高度契合，落地确定性更高。</div>
+    <div class="summary">奥迪全新超跑Nuvolari融合F1技术与未来设计语言，兼具性能与美学，是高端汽车设计领域的重要发布，值得设计、汽车爱好者关注。</div>
+    
+    <div class="fit-tags">
+      <span>高坐姿好视野的车（敞篷法拉利车主，对超跑设计语言敏感）</span><span>看门道：F1技术下放、设计语言演进、钛色视觉线索（Concept C/F1/Nuvolari三者串联）</span><span>科技×艺术：混合动力超跑作为工业设计与未来美学的交叉载体</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(158,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(158,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(158,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.domusweb.it/it/notizie/gallery/2026/06/05/audi-nuvolari-futuro-design-supercar.html" target="_blank">https://www.domusweb.it/it/notizie/gallery/2026/06/05/audi-nuvolari-futuro-desig</a></div>
+  </div>
+</div>
+
+<div class="card" id="c409" data-tier="A" data-cat="珠宝与腕表" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/9dbb8e7445a6.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#1</span>
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">珠宝与腕表</span>
+      <span class="src">Highsnobiety</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">Watches Get Better When Watchmakers Come Together</div>
+    <div class="one-line">🎯 日本匠人联手真力时复活1949金奖机芯，双签手雕限量款</div>
+    <div class="rationale">🏆 组内唯一候选,自动入选</div>
+    <div class="summary">文章报道了日本独立制表师Naoya Hida与真力时的罕见合作，复兴双签名传统，聚焦传奇Calibre 135机芯。对高端腕表藏家和设计爱好者而言，这是兼具工艺深度与收藏价值的稀缺内容。</div>
+    
+    <div class="fit-tags">
+      <span>日本独立制表师×瑞士传奇品牌真力时的双签名合作（科技×工艺×幕后协作）</span><span>聚焦Calibre 135机芯——1949年精密机械史上的‘获奖王’，含具体数字‘230+ chronometry prizes’</span><span>手雕工坊级细节与‘restrained yet deep dimensionality’的设计语言，呼应其美术史研究+草图/过程偏好</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(409,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(409,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(409,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.highsnobiety.com/p/naoya-hida-zenith-calibre-135/" target="_blank">https://www.highsnobiety.com/p/naoya-hida-zenith-calibre-135/</a></div>
+  </div>
+</div>
+
+<div class="card" id="c444" data-tier="A" data-cat="建筑与空间" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/76969caf00db.png" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#1</span>
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">建筑与空间</span>
+      <span class="src">Wallpaper*</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">Fritz Hansen explores the emotional architecture of sound at 3 Days of Design</div>
+    <div class="one-line">🎯 包豪斯灯×Technics黑胶，听光如何塑造空间情绪</div>
+    <div class="rationale">🏆 相比这组其他内容，它在包豪斯经典×高端音频的品牌跨界中同时命中了设计史门道与高质感机械感官，比候选1的独立雕塑音响更精准地击中DJ的坐标偏好（包豪斯+Technics+威士忌级仪式感）</div>
+    <div class="summary">文章报道了Fritz Hansen与Technics在哥本哈根设计节上的跨界合作，将包豪斯经典灯具与高端音频设备结合，探讨声音、光线与家具如何共同塑造空间情感。内容兼具设计史、品牌美学与感官体验，适合设计、艺术与生活方式爱好者。</div>
+    
+    <div class="fit-tags">
+      <span>包豪斯经典灯具（Kaiser Idell）草图/历史脉络与90周年纪念——命中‘看门道’+‘设计史’双重兴奋点</span><span>声音×光线×家具的空间情感实验——精准契合‘科技×艺术’与‘空间偏好（高楼/大露台/简洁）’交叉点</span><span>Technics黑胶系统+定制深酒红配色——呼应其敞篷法拉利车主对高质感机械感、调音/威士忌级感官仪式的偏好</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(444,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(444,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(444,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.wallpaper.com/design-interiors/design-events/fritz-hansen-explores-the-emotional-architecture-of-sound-at-3-days-of-design" target="_blank">https://www.wallpaper.com/design-interiors/design-events/fritz-hansen-explores-t</a></div>
+  </div>
+</div>
+
+<div class="card" id="c452" data-tier="A" data-cat="建筑与空间" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/60efd61c05e7.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#1</span>
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">建筑与空间</span>
+      <span class="src">Wallpaper*</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">LA-based OBEN has created a series of extraordinarily sculptural sound pieces</div>
+    <div class="one-line">🎯 会为‘能听的雕塑’停在展厅三分钟</div>
+    <div class="rationale">🏆 相比其他候选，它同时命中了‘科技×艺术’、‘迈阿密艺术周2025首展’和‘定制化材质实验’三个具体兴奋点，且落地确定性高，是这组中唯一一个将艺术坐标、工艺门道和材质偏好整合得最紧密的内容。</div>
+    <div class="summary">文章介绍OBEN品牌将雕塑艺术与高端音响设计结合，由艺术家夫妇创立，作品在迈阿密艺术周展出，兼具艺术性与声学创新，适合关注设计、艺术与生活美学的高端读者。</div>
+    
+    <div class="fit-tags">
+      <span>雕塑×声学×空间设计（命中‘科技×艺术’+‘看门道’： founders双背景——Stevie的环境感知设计实践 + Bronx的频率/纹理/空间情感构建）</span><span>迈阿密艺术周2025首展（艺术坐标落地事件，非泛泛而谈）</span><span>定制化单件雕塑音响（含Cacao木纹饰面、仿石/人造毛皮材质组合，呼应其丙烯/家具/材质实验兴趣）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(452,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(452,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(452,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.wallpaper.com/tech/oben-audio-stevie-bronx-interview" target="_blank">https://www.wallpaper.com/tech/oben-audio-stevie-bronx-interview</a></div>
+  </div>
+</div>
+
+<div class="card" id="c600" data-tier="A" data-cat="艺术与文化" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/61157adefa39.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#1</span>
+      <span class="dims">兴奋3 落地2 密度3</span>
+      <span class="badge-cat">艺术与文化</span>
+      <span class="src">Google Arts & Culture</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">What Does the Paint Hide? History of the Examination of  “Lady with an Ermine”</div>
+    <div class="one-line">🎯 达·芬奇《持貂女子》的X光级创作解剖</div>
+    <div class="rationale">🏆 相比其他候选，这篇文章精准命中DJ‘科技×艺术’和‘看门道：草图/过程/幕后’双重兴奋点，且聚焦达·芬奇名作的X光级科技检测，专业性和独特性远超泛泛的艺术赏析，落地确定性高。</div>
+    <div class="summary">这是一篇融合艺术史与尖端科技检测的深度文章，揭秘达·芬奇名作背后的隐藏细节。适合对古典艺术、修复科学及大师创作过程感兴趣的高端读者，内容专业且富有启发性。</div>
+    
+    <div class="fit-tags">
+      <span>艺术史×科技检测（XRF、红外反射成像等）——命中‘科技×艺术’兴奋点</span><span>达·芬奇创作过程与修改痕迹（如 ermine 形态演变、底层素描层）——命中‘看门道：草图/过程/幕后’</span><span>聚焦名作修复与材料科学，非泛泛赏析——契合其设计师+美术史研究者身份</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(600,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(600,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(600,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://artsandculture.google.com/story/QQXx_0jmLd0bJg" target="_blank">https://artsandculture.google.com/story/QQXx_0jmLd0bJg</a></div>
+  </div>
+</div>
+
+<div class="card" id="c164" data-tier="A" data-cat="产品与设计" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/474bdf4cd7f2.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#1</span>
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">产品与设计</span>
+      <span class="src">Core77</span>
+      <span class="score">78分</span>
+    </div>
+    <div class="title">A Steel and Brass Monument to Vinyl Records</div>
+    <div class="one-line">🎯 黑胶DJ台：Crespi式金属美学×实体唱片仪式感</div>
+    <div class="rationale">🏆 相比其他候选，这条直接命中DJ身份核心（黑胶DJ台）与设计史坐标（Gabriella Crespi灵感），且材质工艺细节（不锈钢+黄铜）和落地确定性（可定制）均优于同质内容163。</div>
+    <div class="summary">这是一款融合1970年代意大利现代主义美学与当代极简设计的黑胶DJ台，材质考究、工艺精湛，适合高端设计、音乐与生活方式爱好者关注。</div>
+    
+    <div class="fit-tags">
+      <span>材质与工艺细节（不锈钢+黄铜）呼应其设计/美术史兴趣及对‘门道’的偏好</span><span>明确指向黑胶唱片这一实体媒介，契合他作为DJ的身份与对过程性、物质性的敏感</span><span>直接受 Gabriella Crespi 1970年代混合金属作品启发——命中‘设计史坐标’+‘幕后灵感溯源’双兴奋点</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(164,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(164,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(164,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.core77.com/posts/144448/A-Steel-and-Brass-Monument-to-Vinyl-Records?utm_source=core77&utm_medium=from_title" target="_blank">https://www.core77.com/posts/144448/A-Steel-and-Brass-Monument-to-Vinyl-Records?</a></div>
+  </div>
+</div>
+
+<div class="card" id="c555" data-tier="A" data-cat="音乐与演出" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/a84833a18511.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#1</span>
+      <span class="dims">兴奋2 落地3 密度2</span>
+      <span class="badge-cat">音乐与演出</span>
+      <span class="src">The Quietus</span>
+      <span class="score">78分</span>
+    </div>
+    <div class="title">Thomas Bangalter Shares Rare DJ Set for The Lot Radio</div>
+    <div class="one-line">🎯 Daft Punk核心现场混音，含芭蕾配乐与交响新混</div>
+    <div class="rationale">🏆 相比Pixies的经典重制报道，Thomas Bangalter的罕见DJ Set更具稀缺性和跨界艺术深度，更可能触及DJ对‘科技×艺术’坐标的兴趣，且融合芭蕾配乐与交响混音，体验层次更丰富。</div>
+    <div class="summary">前Daft Punk成员罕见DJ混音，融合电子、实验、氛围等多元风格，兼具艺术深度与收藏价值，适合音乐品味挑剔的高端读者。</div>
+    
+    <div class="fit-tags">
+      <span>前Daft Punk成员（科技×艺术坐标）</span><span>为芭蕾《Mirage》创作配乐（艺术坐标+幕后门道）</span><span>2023年 orchestral 专辑《Mythologies》新 remix（过程性内容）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(555,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(555,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(555,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://thequietus.com/news/thomas-bangalter-shares-rare-dj-set-for-the-lot-radio/?utm_source=rss&utm_medium=rss&utm_campaign=thomas-bangalter-shares-rare-dj-set-for-the-lot-radio" target="_blank">https://thequietus.com/news/thomas-bangalter-shares-rare-dj-set-for-the-lot-radi</a></div>
+  </div>
+</div>
+
+<div class="card" id="c505" data-tier="A" data-cat="科技与生活" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/8dcd41c4e3a8.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#1</span>
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">科技与生活</span>
+      <span class="src">Fast Company</span>
+      <span class="score">45分</span>
+    </div>
+    <div class="title">Formlabs’ new 3D printer is poised to reshape manufacturing</div>
+    <div class="one-line">🎯 工业级SLS打印机：从草图到24小时实体零件</div>
+    <div class="rationale">🏆 相比候选2和3，这条直接锚定他研究丙烯/陶瓷/家具的动手需求，且精准关联他喜爱的艺术家工艺实现逻辑，落地确定性高（装备可查可购），对体验的满意度预期最强。</div>
+    <div class="summary">本文介绍工业级3D打印机新品，属于制造业和科技新闻，与高端生活方式（设计、艺术、旅行、美食、精品酒店等）无直接关联，缺乏美学、体验或文化深度，不适合推荐给高端读者。</div>
+    
+    <div class="fit-tags">
+      <span>科技×艺术（工业级SLS 3D打印用于原型/生产，含从草图到实物的制造门道）</span><span>动手做（他研究丙烯/陶瓷/家具，会关注可落地的数字制造工具链）</span><span>席勒、克里姆特、基弗等艺术家依赖精密工艺实现视觉语言——该设备正属‘实现想法的物理接口’</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(505,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(505,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(505,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.fastcompany.com/91555720/formlabs-new-printer-takes-aim-at-factory-scale-manufacturing" target="_blank">https://www.fastcompany.com/91555720/formlabs-new-printer-takes-aim-at-factory-s</a></div>
+  </div>
+</div>
+
+<div class="card" id="c100" data-tier="A" data-cat="产品与设计" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/72bc84f217fb.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#2</span>
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">产品与设计</span>
+      <span class="src">Design Milk</span>
+      <span class="score">85分</span>
+    </div>
+    <div class="title">Misewell Finds Warmth, Texture, and Presence in New Lighting Forms</div>
+    <div class="one-line">🎯 手作灯具工坊实录：釉光如月、灯芯绒纹、涡轮雕塑，点亮他的大露台</div>
+    <div class="rationale">🏆 在手工/触感类内容中，这条的釉面光影、灯芯绒纹理等细节描述最丰富，且‘大露台’场景直接匹配DJ空间偏好，比同类型候选更具画面感和落地性。</div>
+    <div class="summary">本文介绍Misewell在ICFF上发布的最新灯具系列，包括Ripple III吊灯、Q Triple壁灯、Corduroy台灯和Fin台灯。品牌由Vincent和Paul Georgeson兄弟创立，坚持手工制作，在密尔沃基工作室或美国匠人处完成。核心亮点在于对触感、温暖和存在感的极致追求：Ripple系列通过釉面和形态捕捉光线，如同月光洒在静水；Corduroy台灯以手作纹理模拟灯芯绒的奢华质感，隐藏火焰般的暖光；Fin台灯以抽象涡轮造型满足视觉对图案的渴望，不点亮时亦是雕塑。品牌理念强调灯具不仅是照明工具，更是回归物质、纹理与日常使用的媒介，为被屏幕主导的世界提供触觉慰藉。适合关注东方美学与侘寂风的DJ，因其设计兼具极简与温度，可融入高端住宅或精品酒店空间。</div>
+    
+    <div class="fit-tags">
+      <span>手工制作（密尔沃基工作室/美国匠人）——命中‘动手做’与‘工坊’门道</span><span>Ripple III釉面形态捕捉光线如月光洒水——呼应‘看门道’+‘席勒/克里姆特式光影诗意’</span><span>Corduroy台灯手作纹理模拟灯芯绒、隐藏暖光——具象触感设计，满足‘触觉慰藉’与‘材质痴迷’</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(100,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(100,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(100,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://design-milk.com/misewell-finds-warmth-texture-and-presence-in-new-lighting-forms/" target="_blank">https://design-milk.com/misewell-finds-warmth-texture-and-presence-in-new-lighti</a></div>
+  </div>
+</div>
+
+<div class="card" id="c365" data-tier="A" data-cat="艺术与文化" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/dfa4fe671c53.gif" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#2</span>
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">艺术与文化</span>
+      <span class="src">Creative Boom</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">Cecilia Reeve makes paintings that move and animations you can step inside</div>
+    <div class="one-line">🎯 能走进的会呼吸的绘画：伦敦新锐沉浸式动画工坊</div>
+    <div class="rationale">🏆 明确提及‘席勒与克里姆特同源的梦幻装饰性线条’，直接锚定DJ的视觉偏好，沉浸式动画装置兼具‘科技×艺术’与‘看门道’（创作方法论），比泛泛的好内容更精准。</div>
+    <div class="summary">本文介绍伦敦艺术家塞西莉亚·里夫融合绘画与动画的沉浸式装置艺术，其作品在弗里兹周期间引发观众深度体验。内容兼具艺术深度与视觉美感，适合关注当代艺术与跨界创作的高端读者。</div>
+    
+    <div class="fit-tags">
+      <span>沉浸式动画装置（科技×艺术）</span><span>‘ painterly language ’——草图/过程/工坊向的创作方法论</span><span>席勒与克里姆特同源的梦幻、装饰性、神经质线条感（文中‘shadowy figures, drifting birds, glowing fish, shifting interiors’呼应维也纳分离派视觉语法）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(365,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(365,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(365,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.creativeboom.com/inspiration/cecilia-reeve-makes-paintings-that-move-and-animations-you-can-step-inside/" target="_blank">https://www.creativeboom.com/inspiration/cecilia-reeve-makes-paintings-that-move</a></div>
+  </div>
+</div>
+
+<div class="card" id="c434" data-tier="A" data-cat="建筑与空间" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/74f0898b1eb3.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#2</span>
+      <span class="dims">兴奋3 落地3 密度2</span>
+      <span class="badge-cat">建筑与空间</span>
+      <span class="src">Wallpaper*</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">Louis Vuitton introduces its first-ever aluminium suitcase</div>
+    <div class="one-line">🎯 Marc Newson操刀LV首款铝箱，工业设计×百年工坊秘辛</div>
+    <div class="rationale">🏆 它比候选2更直接地关联Marc Newson这一具体人物，且铝制行李箱的工业设计传承与DJ的汽车/未来感偏好高度重合，落地确定性（产品发布）和满意度俱佳</div>
+    <div class="summary">路易威登与Marc Newson十年合作再推新作，首款铝制行李箱融合工业设计美学与品牌历史传承，是高端旅行装备与设计收藏的焦点，值得设计、旅行与奢侈品爱好者关注。</div>
+    
+    <div class="fit-tags">
+      <span>Marc Newson×LV十年合作，命中‘科技×艺术’与‘设计过程/工坊’双兴奋点</span><span>铝制行李箱呼应19世纪LV探险铝箱历史，链接‘幕后/传承门道’</span><span>Newson本人设计语言（LC1椅、Ferrari Luce）直击DJ对工业设计+汽车+未来感的偏好</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(434,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(434,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(434,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.wallpaper.com/travel/louis-vuitton-marc-newson-horizon-aluminium-launch" target="_blank">https://www.wallpaper.com/travel/louis-vuitton-marc-newson-horizon-aluminium-lau</a></div>
+  </div>
+</div>
+
+<div class="card" id="c439" data-tier="A" data-cat="建筑与空间" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/4c00a04f90d3.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#2</span>
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">建筑与空间</span>
+      <span class="src">Wallpaper*</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">Vitra debuts a chair that wears its upholstery like a jacket</div>
+    <div class="one-line">🎯 会为可调悬吊+裁缝式布艺的椅子驻足细看</div>
+    <div class="rationale">🏆 相比候选3和候选4，它更精准地命中了DJ‘动手做/家具设计’和‘科技×艺术’的兴奋点，且隐藏式自动调节悬挂系统与裁缝式布艺的工艺叙事比泛泛的‘数字建造’或‘电摩设计’更具体、更贴近其个人创作兴趣。</div>
+    <div class="summary">Vitra与柏林Studio Œ合作推出Bascule休闲椅，将时尚剪裁与隐藏式自动调节悬挂系统结合，设计创新且工艺精湛。适合关注高端家具、设计美学与功能融合的读者。</div>
+    
+    <div class="fit-tags">
+      <span>草图与过程模型展（正文提及'fabric was draped directly onto working pro...'，暗示工坊级开发过程）</span><span>动手做/家具设计（DJ本人做家具、丙烯、陶瓷，对高端坐具结构与工艺敏感）</span><span>科技×艺术（隐藏式自动调节悬挂系统，工程与人体工学融合，属‘门道’型技术叙事）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(439,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(439,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(439,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.wallpaper.com/design-interiors/vitra-bascule-lounge-chair-oe-studio-reveal" target="_blank">https://www.wallpaper.com/design-interiors/vitra-bascule-lounge-chair-oe-studio-</a></div>
+  </div>
+</div>
+
+<div class="card" id="c449" data-tier="A" data-cat="艺术与文化" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/96b79dddefba.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#2</span>
+      <span class="dims">兴奋3 落地2 密度3</span>
+      <span class="badge-cat">艺术与文化</span>
+      <span class="src">Wallpaper*</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">Royal Copenhagen resurrects Triton, Arje Griegst's oceanic porcelain fantasy at 3 Days of Design</div>
+    <div class="one-line">🎯 看金匠如何把蜂蜡铸金手艺‘硬刚’进瓷器——全过程手稿+失败碎片全展出</div>
+    <div class="rationale">🏆 在陶瓷类内容中，它比候选1和6更胜一筹，因为不仅涉及工艺史和设计史，还详细呈现了金匠转译蜂蜡铸造法至瓷艺的技术转化门道，且与DJ研究的席勒/克里姆特对神话的再诠释形成艺术坐标延伸，多样性优于同质内容。</div>
+    <div class="summary">本文讲述皇家哥本哈根复活1970年代经典瓷器系列Triton，融合艺术、工艺与设计史，适合对高端瓷器、北欧设计和艺术收藏感兴趣的读者。</div>
+    
+    <div class="fit-tags">
+      <span>草图与过程模型展（文中详述蜡模实验、失败原型、 fortnightly 技术员协作）</span><span>瓷器×工艺史×设计史（Griegst金匠出身→转译蜂蜡铸造法至瓷艺，技术转化门道清晰）</span><span>艺术坐标延伸：北欧现代主义+神话母题（Triton系列直指希腊罗马海神，呼应他研究的席勒/克里姆特对神话的再诠释）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(449,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(449,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(449,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.wallpaper.com/design-interiors/royal-copenhagen-arje-griegst-triton-reissue-3-days-of-design-copenhagen" target="_blank">https://www.wallpaper.com/design-interiors/royal-copenhagen-arje-griegst-triton-</a></div>
+  </div>
+</div>
+
+<div class="card" id="c63" data-tier="A" data-cat="科技与生活" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/3d1655e604ba.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#2</span>
+      <span class="dims">兴奋2 落地3 密度2</span>
+      <span class="badge-cat">科技与生活</span>
+      <span class="src">WIRED</span>
+      <span class="score">45分</span>
+    </div>
+    <div class="title">Apple’s iPhone Camera App Is Getting an AI Upgrade in iOS 27</div>
+    <div class="one-line">🎯 iPhone相机接入视觉AI，一眼识物、一键清理——他爱的科技门道来了</div>
+    <div class="rationale">🏆 相比候选3，这条切入他关注的AI/沉浸式交叉点，且iOS 27更新确定性强，虽深度不如候选1，但作为科技门道补充，勾选可能性与满意度组合优于候选3。</div>
+    <div class="summary">科技新闻，缺乏高端生活方式深度</div>
+    
+    <div class="fit-tags">
+      <span>科技×艺术：视觉AI与计算机视觉技术，契合他关注的AI/沉浸式/科幻交叉点</span><span>门道隐含：Siri Visual Intelligence 的工作逻辑（实时场景理解→日历/植物识别）体现过程性智能</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(63,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(63,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(63,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.wired.com/story/apples-iphone-camera-app-is-getting-an-ai-upgrade-in-ios-27/" target="_blank">https://www.wired.com/story/apples-iphone-camera-app-is-getting-an-ai-upgrade-in</a></div>
+  </div>
+</div>
+
+<div class="card" id="c360" data-tier="A" data-cat="艺术与文化" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/7cc31a56f766.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#3</span>
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">艺术与文化</span>
+      <span class="src">Creative Boom</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">Documenting the last generation of teenagers to grow up in an analogue world</div>
+    <div class="one-line">🎯 手作工坊复刻千禧年模拟器，听CD咔嗒声，看拇指滑开翻盖机</div>
+    <div class="rationale">🏆 以手工搭建场景还原模拟时代，聚焦实体媒介的物理姿态，恰切呼应DJ对‘动手做’与‘人本技术观’的兴趣，且内容与前三者（建筑、绘画、模型）完全不重叠，保证了多样性。</div>
+    <div class="summary">Souffle以诗意影像考古模拟时代的最后一代青少年，拒绝AI、手工搭建场景，捕捉CD机、磁带等失落的姿态与动作。对数字革命前的怀旧与艺术化记录，适合关注摄影、设计与文化变迁的高端读者。</div>
+    
+    <div class="fit-tags">
+      <span>手工搭建场景（对应'动手做'兴奋点）</span><span>聚焦CD机/磁带等实体媒介的物理动作与声音（命中'看门道'——姿态、过程、机械反馈）</span><span>拒绝AI、坚持胶片与实体工坊实践（强化科技×艺术中的'人本技术观'，呼应其对AI/机器人/科幻的审慎兴趣）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(360,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(360,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(360,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.creativeboom.com/inspiration/documenting-the-last-generation-of-teenagers-to-grow-up-in-an-analogue-world/" target="_blank">https://www.creativeboom.com/inspiration/documenting-the-last-generation-of-teen</a></div>
+  </div>
+</div>
+
+<div class="card" id="c177" data-tier="A" data-cat="产品与设计" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/bbc59ac13c2c.png" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-A">A档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#3</span>
+      <span class="dims">兴奋3 落地2 密度2</span>
+      <span class="badge-cat">产品与设计</span>
+      <span class="src">Core77</span>
+      <span class="score">72分</span>
+    </div>
+    <div class="title">French Industrial Designer Invents Durable, Four-Season Outdoor Inflatable Furniture</div>
+    <div class="one-line">🎯 航空级充气家具：露台秒变设计展场</div>
+    <div class="rationale">🏆 在户外/实用类内容中，这条的航空技术门道和四季适用性最突出，且‘露台变展场’的钩子比候选5/6的搁板支架更具场景想象力和多样性。</div>
+    <div class="summary">本文介绍法国设计师用航空技术革新充气家具，解决行业浪费问题，兼具轻便、耐用与四季户外适用性，对高端生活方式读者有设计创新与实用价值启发。</div>
+    
+    <div class="fit-tags">
+      <span>设计师出身+工坊成长背景（呼应本人设计师身份与动手做偏好）</span><span>航空技术×家具结构创新（命中‘科技×艺术’兴奋点，且含门道：高压/轻量/材料重构）</span><span>四季户外适用+大露台/泳池宅场景适配（契合其空间偏好与‘好用不娇气’的实用主义审美）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(177,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(177,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(177,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.core77.com/posts/144414/French-Industrial-Designer-Invents-Durable-Four-Season-Outdoor-Inflatable-Furniture?utm_source=public_sidebar" target="_blank">https://www.core77.com/posts/144414/French-Industrial-Designer-Invents-Durable-F</a></div>
+  </div>
+</div>
+
+<div class="card" id="c174" data-tier="B" data-cat="汽车与出行" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/c560f799eed1.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      
+      <span class="dims">兴奋3 落地1 密度2</span>
+      <span class="badge-cat">汽车与出行</span>
+      <span class="src">Core77</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">Audi Unveils Secret Supercar, New Design Direction</div>
+    <div class="one-line">🎯 奥迪跳过概念车，直产极简未来超跑Nuvolari</div>
+    <div class="rationale">🏆 与候选3同源Core77，内容高度重复，且缺乏候选158的设计深度和独家细节，多样性不足。</div>
+    <div class="summary">奥迪首席创意官Frascella以极简主义理念推出秘密超跑Nuvolari，跳过概念车直接量产，展现品牌新设计方向。文章结合设计哲学与产品发布，对汽车设计爱好者及高端生活方式读者具有启发性和独家价值。</div>
+    
+    <div class="fit-tags">
+      <span> techno-futuristic supercar design (科技×艺术兴奋点)</span><span>radical simplicity as design philosophy — echoes his own design training & appreciation for clarity (设计师出身共鸣)</span><span>skipped concept phase, went straight to production — reveals behind-the-scenes decision-making (门道：幕后/工坊级策略)</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(174,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(174,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(174,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.core77.com/posts/144425/Audi-Unveils-Secret-Supercar-New-Design-Direction?utm_source=public_sidebar" target="_blank">https://www.core77.com/posts/144425/Audi-Unveils-Secret-Supercar-New-Design-Dire</a></div>
+  </div>
+</div>
+
+<div class="card" id="c171" data-tier="B" data-cat="汽车与出行" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/c560f799eed1.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      
+      <span class="dims">兴奋3 落地1 密度2</span>
+      <span class="badge-cat">汽车与出行</span>
+      <span class="src">Core77</span>
+      <span class="score">78分</span>
+    </div>
+    <div class="title">Audi Unveils Secret Supercar, New Design Direction</div>
+    <div class="one-line">🎯 奥迪秘密超跑Nuvolari：极简主义+量产直投，门道全在删减逻辑</div>
+    <div class="rationale">🏆 与候选174同源，信息冗余，且摘要未体现比候选158更优的独家视角或落地确定性，被同质化淘汰。</div>
+    <div class="summary">奥迪首席创意官Frascella以极简主义理念推出秘密超跑Nuvolari，跳过概念车直接量产，展现品牌全新设计方向。文章结合设计哲学与产品发布，适合关注汽车设计、高端出行与品牌文化的高端读者。</div>
+    
+    <div class="fit-tags">
+      <span> techno-futuristic supercar design (科技×艺术兴奋点)</span><span>radical simplicity as design philosophy (设计师出身企业家的深层共鸣)</span><span>Nuvolari量产跳过概念车阶段——含设计决策过程与幕后逻辑</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(171,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(171,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(171,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.core77.com/posts/144425/Audi-Unveils-Secret-Supercar-New-Design-Direction?utm_source=core77&utm_medium=from_tile_image" target="_blank">https://www.core77.com/posts/144425/Audi-Unveils-Secret-Supercar-New-Design-Dire</a></div>
+  </div>
+</div>
+
+<div class="card" id="c319" data-tier="B" data-cat="建筑与空间" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/7407920ca657.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      
+      <span class="dims">兴奋2 落地1 密度2</span>
+      <span class="badge-cat">建筑与空间</span>
+      <span class="src">Designboom</span>
+      <span class="score">78分</span>
+    </div>
+    <div class="title">an intricate timber viewpoint by dum-dum lab rises beside chile’s laguna troya</div>
+    <div class="one-line">🎯 智利湖畔木构观景台：参数化小构件工坊级建造实录</div>
+    <div class="rationale">🏆 小组赛淘汰</div>
+    <div class="summary">这是一篇关于智利湖畔木结构观景台的设计报道，展现了小型建筑如何与自然景观和谐共生。文章详细介绍了设计理念、建造逻辑和生态融合，适合对建筑、自然和旅行感兴趣的高端读者。</div>
+    
+    <div class="fit-tags">
+      <span>木结构工坊级建造逻辑（小构件聚合、Rhino/Grasshopper/Karamba参数建模）</span><span>观景台作为‘开放课堂’呼应他‘看门道’的兴奋点（观察+本地知识+野生动物互动）</span><span>简洁几何体量与自然渗透关系——契合其空间偏好中‘高楼/大露台/简洁’的视觉秩序感</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(319,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(319,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(319,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.designboom.com/architecture/timber-viewpoint-dum-dum-lab-chile-laguna-troya/" target="_blank">https://www.designboom.com/architecture/timber-viewpoint-dum-dum-lab-chile-lagun</a></div>
+  </div>
+</div>
+
+<div class="card" id="c341" data-tier="B" data-cat="产品与设计" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/878159a6bfc0.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      
+      <span class="dims">兴奋3 落地1 密度2</span>
+      <span class="badge-cat">产品与设计</span>
+      <span class="src">It's Nice That</span>
+      <span class="score">78分</span>
+    </div>
+    <div class="title">Daryn Roongrawewan doesn’t design logos, she crafts “ornamental icons”</div>
+    <div class="one-line">🎯 把字母L变成会旋转开花的 ornament icon</div>
+    <div class="rationale">🏆 小组赛淘汰</div>
+    <div class="summary">文章介绍设计师Daryn Roongrawewan如何将编辑设计背景与自然观察结合，为花店和艺术工作室打造富有装饰性的品牌标识。适合对字体设计、品牌视觉和手工艺细节感兴趣的高端读者。</div>
+    
+    <div class="fit-tags">
+      <span>草图与过程模型展（定制字母的形变逻辑：L可旋转生成多种花形）</span><span>看门道（Slavic字母研究、维多利亚地毯图样、1920年代童书插画溯源）</span><span>艺术坐标（手工艺细节×装饰性视觉系统，呼应克里姆特金箔装饰与席勒线条张力）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(341,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(341,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(341,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.itsnicethat.com/articles/daryn-roongrawewan-graphic-design-discover-030626" target="_blank">https://www.itsnicethat.com/articles/daryn-roongrawewan-graphic-design-discover-</a></div>
+  </div>
+</div>
+
+<div class="card" id="c169" data-tier="B" data-cat="产品与设计" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/660a78f0ce73.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      
+      <span class="dims">兴奋2 落地2 密度1</span>
+      <span class="badge-cat">产品与设计</span>
+      <span class="src">Core77</span>
+      <span class="score">75分</span>
+    </div>
+    <div class="title">Industrial Designer Fengfan Yang's Table Re-Think with +Halle</div>
+    <div class="one-line">🎯 可悬挂组装的模块化餐桌系统，工坊级结构思维</div>
+    <div class="rationale">🏆 小组赛淘汰</div>
+    <div class="summary">本文介绍了一位新锐工业设计师与丹麦品牌合作的创新公共餐桌系统，设计简洁实用且可持续，体现了高端设计思维与商业落地的结合，适合关注设计创新与公共空间美学的读者。</div>
+    
+    <div class="fit-tags">
+      <span>动手做（家具设计与结构解构）、看门道（'rethink architecture of table' 'extruded profile construction' 'customizable add-ons' 暗示工坊级结构逻辑）、设计坐标（Stuttgart美院出身，德国设计奖新锐提名，契合其设计师出身+国际设计体系认同）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(169,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(169,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(169,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.core77.com/posts/144429/Industrial-Designer-Fengfan-Yangs-Table-Re-Think-with-Halle?utm_source=core77&utm_medium=from_tile_image" target="_blank">https://www.core77.com/posts/144429/Industrial-Designer-Fengfan-Yangs-Table-Re-T</a></div>
+  </div>
+</div>
+
+<div class="card" id="c170" data-tier="B" data-cat="产品与设计" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/660a78f0ce73.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      
+      <span class="dims">兴奋2 落地2 密度1</span>
+      <span class="badge-cat">产品与设计</span>
+      <span class="src">Core77</span>
+      <span class="score">75分</span>
+    </div>
+    <div class="title">Industrial Designer Fengfan Yang's Table Re-Think with +Halle</div>
+    <div class="one-line">🎯 可定制悬挂式公共餐桌，结构精简如草图落地</div>
+    <div class="rationale">🏆 小组赛淘汰</div>
+    <div class="summary">这是一篇关于工业设计师与丹麦品牌合作推出创新公共餐桌系统的报道，设计简洁实用且具可持续性，适合关注家具设计、公共空间美学与功能融合的高端读者。</div>
+    
+    <div class="fit-tags">
+      <span>动手做（家具设计）</span><span>看门道（‘rethink architecture of a table’‘extruded profile construction’暗示结构逻辑与工艺细节）</span><span>设计出身企业家身份共鸣（Stuttgart美院背景、从学生到量产签约的快速落地路径）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(170,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(170,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(170,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.core77.com/posts/144429/Industrial-Designer-Fengfan-Yangs-Table-Re-Think-with-Halle?utm_source=core77&utm_medium=from_title" target="_blank">https://www.core77.com/posts/144429/Industrial-Designer-Fengfan-Yangs-Table-Re-T</a></div>
+  </div>
+</div>
+
+<div class="card" id="c159" data-tier="B" data-cat="建筑与空间" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/a3300a82c9bf.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      
+      <span class="dims">兴奋2 落地1 密度2</span>
+      <span class="badge-cat">建筑与空间</span>
+      <span class="src">Domus</span>
+      <span class="score">72分</span>
+    </div>
+    <div class="title">A Milano, P2A Design ridisegna un appartamento di 100 mq partendo dal corridoio</div>
+    <div class="one-line">🎯 用色彩与定制家具重写小户型建筑语法</div>
+    <div class="rationale">🏆 小组赛淘汰</div>
+    <div class="summary">这是一篇关于米兰100平米公寓室内改造的设计案例，展示了如何通过色彩、定制家具和空间重组提升小户型的居住体验。适合对住宅设计、空间优化和意大利设计美学感兴趣的读者，但项目规模较小，非顶级豪宅或酒店项目。</div>
+    
+    <div class="fit-tags">
+      <span>空间重组过程（走廊重构为服务序列）、定制家具与色彩作为建筑语法</span><span>意大利设计美学（Mutina × Nathalie Du Pasquier陶瓷系列）</span><span>小尺度住宅改造的草图级逻辑：从平面重排到感知重塑</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(159,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(159,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(159,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.domusweb.it/it/interni/gallery/2026/06/04/appartamento-milano-colore-p2a-design.html" target="_blank">https://www.domusweb.it/it/interni/gallery/2026/06/04/appartamento-milano-colore</a></div>
+  </div>
+</div>
+
+<div class="card" id="c326" data-tier="B" data-cat="建筑与空间" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/5a75c6257ce4.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      
+      <span class="dims">兴奋3 落地1 密度2</span>
+      <span class="badge-cat">建筑与空间</span>
+      <span class="src">Designboom</span>
+      <span class="score">72分</span>
+    </div>
+    <div class="title">prada and axiom unveil cooling inner layer for NASA astronauts’ spacesuits on the moon</div>
+    <div class="one-line">🎯 Prada为登月宇航服设计隐形液冷内层，科技与高定工艺的暗战</div>
+    <div class="rationale">🏆 小组赛淘汰</div>
+    <div class="summary">Prada与Axiom Space合作设计NASA宇航服内层，将高端时尚工艺应用于航天科技，展现跨领域创新。内容兼具科技深度与设计美学，适合关注设计与科技融合的高端读者。</div>
+    
+    <div class="fit-tags">
+      <span>科技×艺术（航天工程×高端纺织设计）</span><span>看门道（液冷通风服的管路布局、贴身热管理工况设计）</span><span>席勒/克里姆特式精密工艺隐喻——‘隐藏层’呼应其装饰性与功能性并重的美学逻辑</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(326,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(326,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(326,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.designboom.com/design/prada-axiom-space-nasa-spacesuit-next-gen-cooling-garment-moonwalks/" target="_blank">https://www.designboom.com/design/prada-axiom-space-nasa-spacesuit-next-gen-cool</a></div>
+  </div>
+</div>
+
+<div class="card" id="c200" data-tier="B" data-cat="精品酒店与度假" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/4b07693e99a1.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#1</span>
+      <span class="dims">兴奋2 落地2 密度1</span>
+      <span class="badge-cat">精品酒店与度假</span>
+      <span class="src">Design Hotels</span>
+      <span class="score">85分</span>
+    </div>
+    <div class="title">MIRA Earth Studios</div>
+    <div class="one-line">🎯 巴哈半岛岩缝里的侘寂工坊酒店</div>
+    <div class="rationale">🏆 相较于195，它更精准地命中了设计师艺术坐标（侘寂风格）与动手做交叉点（定制家具），且巴哈半岛的自然岩缝场景独特，勾选概率和体验满意度更高。</div>
+    <div class="summary">本文介绍MIRA Earth Studios，一个将奢华套房嵌入巴哈半岛岩石景观的精品酒店，强调夯土墙、绿色屋顶等可持续设计，以及温暖极简的侘寂风格内饰。适合关注高端旅行、建筑与设计融合的读者，提供独特的自然沉浸体验。</div>
+    
+    <div class="fit-tags">
+      <span>夯土墙与绿色屋顶的可持续建筑工法（设计+材料门道）</span><span>侘寂风格（Wabi-Sabi）内饰与设计师本人艺术坐标高度契合</span><span>定制石材/木材/混凝土家具（动手做×空间设计交叉点）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(200,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(200,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(200,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.designhotels.com/hotels/mexico/baja-california/valle-de-guadalupe/mira-earth-studios/" target="_blank">https://www.designhotels.com/hotels/mexico/baja-california/valle-de-guadalupe/mi</a></div>
+  </div>
+</div>
+
+<div class="card" id="c172" data-tier="B" data-cat="汽车与出行" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/c560f799eed1.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#1</span>
+      <span class="dims">兴奋3 落地1 密度2</span>
+      <span class="badge-cat">汽车与出行</span>
+      <span class="src">Core77</span>
+      <span class="score">78分</span>
+    </div>
+    <div class="title">Audi Unveils Secret Supercar, New Design Direction</div>
+    <div class="one-line">🎯 奥迪秘密超跑Nuvolari：极简未来主义，设计师亲述TT启蒙到量产突破</div>
+    <div class="rationale">🏆 相对候选1（Domus版）和同信源候选2、4，此条包含设计总监Frascella亲述草图演进及TT启蒙细节，信息最全且深度契合DJ作为设计师和爱好者的幕后门道需求，命中坐标更精准。</div>
+    <div class="summary">奥迪新超跑Nuvolari的发布及设计总监Frascella的设计哲学解读，融合了品牌历史、设计理念与未来方向，对汽车设计爱好者及高端生活方式读者有吸引力。</div>
+    
+    <div class="fit-tags">
+      <span> techno-futuristic supercar design (命中'科技×艺术'兴奋点)</span><span>设计总监亲述草图/理念演进过程（'radical simplicity'、TT观车细节），含幕后思维与门道</span><span>敞篷法拉利车主对超跑设计语言高度敏感，Nuvolari作为生产级秘密超跑具强钩子</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(172,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(172,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(172,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.core77.com/posts/144425/Audi-Unveils-Secret-Supercar-New-Design-Direction?utm_source=core77&utm_medium=from_title" target="_blank">https://www.core77.com/posts/144425/Audi-Unveils-Secret-Supercar-New-Design-Dire</a></div>
+  </div>
+</div>
+
+<div class="card" id="c215" data-tier="B" data-cat="美食与美酒" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/036a9ca22169.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#1</span>
+      <span class="dims">兴奋2 落地1 密度2</span>
+      <span class="badge-cat">美食与美酒</span>
+      <span class="src">Punch</span>
+      <span class="score">78分</span>
+    </div>
+    <div class="title">Five Glasses Defining Cocktail Bars Right Now</div>
+    <div class="one-line">🎯 五款正在定义顶级酒吧的玻璃器皿，含手吹工艺与北欧设计</div>
+    <div class="rationale">🏆 相比216的通用指南和214的配方合集，这篇从酒吧行业观察切入，兼具设计趋势与工艺细节，更符合DJ对器物美学和行业洞察的双重偏好，且‘手吹工艺’与‘北欧设计’的兴奋点标签精准命中其设计师背景。</div>
+    <div class="summary">本文从鸡尾酒吧的玻璃器皿切入，揭示了高端酒吧在细节设计上的趋势与美学追求，适合对调酒文化、餐饮设计及生活方式细节感兴趣的读者。内容专业且具启发性，但偏行业观察，非直接消费推荐。</div>
+    
+    <div class="fit-tags">
+      <span>威士忌与调酒（明确口味偏好）</span><span>玻璃器皿设计细节（设计师出身+看门道）</span><span>手吹高脚杯/水晶岩石杯（工艺感+材质触觉）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(215,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(215,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(215,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://punchdrink.com/articles/best-trendy-cocktail-glassware-2026/" target="_blank">https://punchdrink.com/articles/best-trendy-cocktail-glassware-2026/</a></div>
+  </div>
+</div>
+
+<div class="card" id="c402" data-tier="B" data-cat="时尚与风格" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/f2a0f273810a.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#1</span>
+      <span class="dims">兴奋1 落地2 密度2</span>
+      <span class="badge-cat">时尚与风格</span>
+      <span class="src">Highsnobiety</span>
+      <span class="score">72分</span>
+    </div>
+    <div class="title">We've Reached Peak Double-Knee Pant</div>
+    <div class="one-line">🎯 Arc'teryx攀岩工装裤：科技面料×工装剪裁×设计师级配色</div>
+    <div class="rationale">🏆 组内唯一候选,自动入选</div>
+    <div class="summary">文章从时尚与功能融合的角度，分析了高端户外品牌Arc'teryx如何将工装裤元素转化为攀岩装备，适合关注设计细节与潮流演变的读者。</div>
+    
+    <div class="fit-tags">
+      <span>高端户外工装与攀岩功能融合的设计逻辑</span><span>Arc'teryx品牌在材料（有机棉+尼龙+氨纶）与色彩（石红洗水）上的细节把控</span><span>提及‘工具口袋’‘加固膝部’‘宽腿微收’等具体结构特征</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(402,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(402,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(402,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.highsnobiety.com/p/best-double-knee-pants-artcteryx-carhartt/" target="_blank">https://www.highsnobiety.com/p/best-double-knee-pants-artcteryx-carhartt/</a></div>
+  </div>
+</div>
+
+<div class="card" id="c182" data-tier="B" data-cat="科技与生活" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/5e3d92b62c0f.png" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#1</span>
+      <span class="dims">兴奋1 落地2 密度2</span>
+      <span class="badge-cat">科技与生活</span>
+      <span class="src">WIRED</span>
+      <span class="score">45分</span>
+    </div>
+    <div class="title">GM Wants Your Electric Car to Power Your House—and Your Neighborhood</div>
+    <div class="one-line">🎯 你的法拉利会发电？GM电动车正变身移动电站</div>
+    <div class="rationale">🏆 组内唯一候选,自动入选</div>
+    <div class="summary">文章主要介绍通用汽车电动车的双向充电技术及其对电网的潜在影响，属于科技新闻，与高端生活方式（设计、艺术、旅行、美食等）无直接关联。内容偏技术性和行业动态，缺乏高端生活体验或美学价值，不适合推荐给关注设计、艺术、旅行、美食的高端读者。</div>
+    
+    <div class="fit-tags">
+      <span>科技×艺术交叉点（电动车电池作为分布式能源装置，具工程美学与系统思维）</span><span>与他本人敞篷法拉利车主身份形成技术代际对照，激发对‘移动能源体’的思辨兴趣</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(182,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(182,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(182,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.wired.com/story/gm-vehicle-to-grid-charging-your-electric-car-can-power-your-house-and-your-neighborhood/" target="_blank">https://www.wired.com/story/gm-vehicle-to-grid-charging-your-electric-car-can-po</a></div>
+  </div>
+</div>
+
+<div class="card" id="c195" data-tier="B" data-cat="精品酒店与度假" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/1005da629671.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#2</span>
+      <span class="dims">兴奋2 落地2 密度1</span>
+      <span class="badge-cat">精品酒店与度假</span>
+      <span class="src">Design Hotels</span>
+      <span class="score">82分</span>
+    </div>
+    <div class="title">Matsumoto Jujo</div>
+    <div class="one-line">🎯 百年浴场改图书馆+双馆叙事，日式设计考古现场</div>
+    <div class="rationale">🏆 相较于200，它的双酒店概念和浴场改造图书馆的叙事结构更清晰，建筑遗产活化门道更系统，适合偏好日式深度文化体验的读者，与200形成互补多样性。</div>
+    <div class="summary">松本十帖是Design Hotels旗下精品酒店，融合1300年温泉传统与现代设计，以书籍主题和双酒店概念打造独特文化体验。适合追求深度旅行、日式美学与高端温泉度假的高端读者。</div>
+    
+    <div class="fit-tags">
+      <span>书籍主题酒店（契合'看门道'延伸——图书馆设于原浴场，具空间改造过程感）</span><span> historic ryokan restoration（老旅館改造，含建筑遗产活化门道）</span><span>双酒店概念Honbako & Koyanagi（设计叙事结构，类比工坊/模型分阶段呈现）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(195,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(195,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(195,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.designhotels.com/hotels/japan/matsumoto/matsumoto-jujo/" target="_blank">https://www.designhotels.com/hotels/japan/matsumoto/matsumoto-jujo/</a></div>
+  </div>
+</div>
+
+<div class="card" id="c214" data-tier="B" data-cat="美食与美酒" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/c9de2d76b906.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#2</span>
+      <span class="dims">兴奋2 落地2 密度2</span>
+      <span class="badge-cat">美食与美酒</span>
+      <span class="src">Punch</span>
+      <span class="score">72分</span>
+    </div>
+    <div class="title">The Most Popular Cocktails of May</div>
+    <div class="one-line">🎯 三款有工艺门道的当季鸡尾酒，含澄清、无糖主义、复古配方</div>
+    <div class="rationale">🏆 相比216的器物指南，这篇直接提供可复刻的当季配方，且‘澄清工艺’和‘极简配方哲学’两个兴奋点与DJ的工坊感和结构克制偏好高度契合，落地确定性（在家调酒）高于215的行业观察。</div>
+    <div class="summary">精选五款当季鸡尾酒配方，涵盖经典改良与创意调酒，适合高端读者在家复刻或了解调酒趋势。内容专业且具实操性，但偏实用指南而非深度文化报道。</div>
+    
+    <div class="fit-tags">
+      <span>威士忌与调酒（明确口味偏好）</span><span>Piña Colada Milk Punch含澄清工艺门道（过程/工坊感）</span><span>Guillotine体现极简配方哲学（呼应设计师对结构与克制的敏感）</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(214,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(214,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(214,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://punchdrink.com/articles/most-popular-best-cocktail-recipes-may-2026/" target="_blank">https://punchdrink.com/articles/most-popular-best-cocktail-recipes-may-2026/</a></div>
+  </div>
+</div>
+
+<div class="card" id="c573" data-tier="B" data-cat="音乐与演出" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/0183dbcef201.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#2</span>
+      <span class="dims">兴奋1 落地2 密度2</span>
+      <span class="badge-cat">音乐与演出</span>
+      <span class="src">The Quietus</span>
+      <span class="score">72分</span>
+    </div>
+    <div class="title">Pixies Announces 2026 Remasters of ‘Bossanova’ and ‘Trompe Le Monde’</div>
+    <div class="one-line">🎯 Pixies经典专辑重制，附未发行磁带室藏曲</div>
+    <div class="rationale">🏆 Pixies经典专辑重制含未发行曲目和高规格混音，对另类摇滚乐迷和收藏家有明确落地价值，但相对Bangalter的稀有现场，其新闻性与独特性略低，故排第二。</div>
+    <div class="summary">Pixies是另类摇滚传奇，重制经典专辑并附赠未发行曲目，对乐迷和收藏家极具吸引力。内容聚焦音乐本身，符合高端生活方式中音乐与演出的品味追求。</div>
+    
+    <div class="fit-tags">
+      <span>另类摇滚传奇乐队重制专辑</span><span>含未发行曲目（如'Go Man Go'）</span><span>由工程师深入磁带档案做Dolby Atmos混音与高解析母带</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(573,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(573,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(573,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://thequietus.com/news/pixies-announces-2026-remasters-of-bossanova-and-trompe-le-monde/?utm_source=rss&utm_medium=rss&utm_campaign=pixies-announces-2026-remasters-of-bossanova-and-trompe-le-monde" target="_blank">https://thequietus.com/news/pixies-announces-2026-remasters-of-bossanova-and-tro</a></div>
+  </div>
+</div>
+
+<div class="card" id="c357" data-tier="B" data-cat="艺术与文化" data-status="pending">
+  
+  <img class="card-img" src="/Users/yeruobin/Documents/优质图文推荐日报/static/images/b771d619d478.jpg" loading="lazy" onerror="this.style.display='none'">
+  
+  <div class="card-body">
+    <div class="meta">
+      <span class="tier-badge tier-B">B档</span>
+      <span style="font-size:11px;color:#c9a96e">⭐#3</span>
+      <span class="dims">兴奋3 落地2 密度1</span>
+      <span class="badge-cat">艺术与文化</span>
+      <span class="src">Creative Boom</span>
+      <span class="score">88分</span>
+    </div>
+    <div class="title">Step Into the Impossible: M.C. Escher arrives at Somerset House</div>
+    <div class="one-line">🎯 走进埃舍尔手稿与悖论世界，看数学如何被画出来</div>
+    <div class="rationale">🏆 在‘伦敦的展’类内容中，它比候选4更优，因为埃舍尔是艺术与设计史上的标志性人物，其视错觉与无限空间对设计史和游戏影响深远，且手稿与过程线索明确，契合DJ‘看门道’偏好，落地确定性高（萨默塞特宫首次大型个展）。</div>
+    <div class="summary">埃舍尔是艺术与设计史上的标志性人物，其视错觉与无限空间对当代设计、建筑、游戏影响深远。萨默塞特宫首次大型个展，150幅原作+沉浸体验，是今夏伦敦不可错过的文化盛事，适合艺术与设计爱好者深度探访。</div>
+    
+    <div class="fit-tags">
+      <span>视错觉与无限空间（科技×艺术/数学美学的沉浸式表达）</span><span>手绘草图与过程线索（早期意大利风景→阿尔罕布拉宫写生→手工推演镶嵌）</span><span>对设计史与游戏（如Monument Valley）的直接影响，契合其'看门道'偏好</span>
+    </div>
+    
+    
+    
+    <div class="actions">
+      <button class="btn-ok" onclick="doReview(357,'candidate',this)">✅ 入选</button>
+      <button class="btn-maybe" onclick="doReview(357,'maybe',this)">🤔 候补</button>
+      <button class="btn-no" onclick="doReview(357,'rejected',this)">❌ 淘汰</button>
+    </div>
+    <div class="url"><a href="https://www.creativeboom.com/news/step-into-the-impossible-mc-escher-arrives-at-somerset-house/" target="_blank">https://www.creativeboom.com/news/step-into-the-impossible-mc-escher-arrives-at-</a></div>
+  </div>
+</div>
+
+
+</div>
+
+<script>
+const STORAGE_KEY = 'review_decisions_v2';
+function getDecisions(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')}catch(e){return{}}}
+function saveDecisions(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d))}
+
+function doReview(id, status, btn) {
+  const card = document.getElementById('c'+id);
+  card.classList.add('done');
+  card.dataset.status = status;
+  const decisions = getDecisions();
+  decisions[id] = status;
+  saveDecisions(decisions);
+}
+
+function approveAll() {
+  if(!confirm('确认通过所有待审核文章？')) return;
+  document.querySelectorAll('.card[data-status="pending"]').forEach(card => {
+    const id = card.id.replace('c','');
+    doReview(parseInt(id), 'candidate', null);
+  });
+}
+
+function filterAll(btn) {
+  document.querySelectorAll('.toolbar button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.card').forEach(c=>c.style.display='');
+}
+
+function filterTier(tier, btn) {
+  document.querySelectorAll('.toolbar button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.card').forEach(c => {
+    c.style.display = c.dataset.tier === tier ? '' : 'none';
+  });
+}
+
+function filterCat(cat, btn) {
+  document.querySelectorAll('.toolbar button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.card').forEach(c => {
+    c.style.display = c.dataset.cat === cat ? '' : 'none';
+  });
+}
+
+(function(){
+  const d = getDecisions();
+  for(const[id, status] of Object.entries(d)) {
+    const card = document.getElementById('c'+id);
+    if(card) { card.classList.add('done'); card.dataset.status = status; }
+  }
+})();
+</script>
+</body>
+</html>

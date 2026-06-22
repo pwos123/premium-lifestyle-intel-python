@@ -1,0 +1,121 @@
+api_keys:
+  deepseek:
+    api_key: ''
+    base_url: https://api.deepseek.com
+    model: deepseek-chat
+    weight: 1.0
+  qwen:
+    api_key: ''
+    base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+    model: qwen-plus
+    weight: 1.0
+  kimi:
+    api_key: ''
+    base_url: https://api.moonshot.cn/v1
+    model: moonshot-v1-128k
+    weight: 1.0
+crawler:
+  max_concurrent: 5
+  max_site_concurrent: 4
+  max_image_concurrent: 6
+  max_articles_per_site: 20
+  request_timeout: 30
+  retry_count: 3
+  site_timeout: 180
+  max_images_per_article: 5
+  rss_enrich_min_content_chars: 600
+  min_host_interval: 0.35
+  min_content_chars: 200
+  require_images: false
+  quick_analysis_enabled: true
+  quick_analysis_timeout: 45
+  user_agents:
+  - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like
+    Gecko) Chrome/125.0.0.0 Safari/537.36
+  - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like
+    Gecko) Version/17.5 Safari/605.1.15
+  - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)
+    Chrome/125.0.0.0 Safari/537.36
+ai:
+  min_score: 60
+  top_n_for_review: 30
+  timeout_per_model: 60
+  recommend_levels:
+    must_read: 85
+    recommended: 70
+    worth_knowing: 60
+report:
+  articles_per_report: 15
+  max_image_size_kb: 500
+  output_dir: output
+schedule:
+  daily_crawl: '10:00'
+  weekly_report: friday 12:00
+  review_reminder: wednesday 10:00
+database:
+  path: data/content.db
+images:
+  cache_dir: static/images
+  max_age_days: 30
+  max_width: 1200
+  quality: 85
+sources_music:
+- name: Pitchfork
+  url: https://pitchfork.com
+  type: rss
+  rss_url: https://pitchfork.com/feed/feed-news/rss
+- name: The Quietus
+  url: https://thequietus.com
+  type: rss
+  rss_url: https://thequietus.com/feed
+- name: Resident Advisor
+  url: https://ra.co
+  type: rss
+  rss_url: https://ra.co/feed
+- name: FADER
+  url: https://www.thefader.com
+  type: rss
+  rss_url: https://www.thefader.com/feed
+gate_models:
+  gate1:
+    provider: qwen
+    model_override: qwen-flash
+  gate2:
+    provider: qwen
+    model_override: qwen-plus
+  gate3:
+    provider: deepseek
+    model_override: deepseek-chat
+  card_writer:
+    provider: deepseek
+    model_override: deepseek-chat
+  fact_extractor:
+    provider: deepseek
+    model_override: deepseek-chat
+  editor_note:
+    provider: deepseek
+    model_override: deepseek-chat
+  card_writer_kimi_exp:
+    provider: kimi
+    model_override: kimi-k2.5
+    note: 写手对比实验 — 不动 card_writer 现行配置
+gates:
+  gate1:
+    deadline_days: 7
+    content_min_chars: 500
+  gate3:
+    candidates_per_group: 10
+    min_group_size: 6
+    select_per_group: 3
+    daily_quota: 35
+throttle:
+  select_per_group: 3
+  candidates_per_group: 10
+  star_channel_daily_quota: 8
+  normal_channel_daily_quota: 4
+  daily_total_quota: 35
+  regroup_limit: 1
+  c_tier_window_days: 3
+  carryover_limit: 2
+  gate3_passthrough: true
+  carryover_sink_enabled: false

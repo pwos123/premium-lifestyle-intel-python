@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>高品质图文推荐 · 管理中心</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+<div class="app">
+
+<!-- 侧边栏 -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-brand">
+      <div class="icon"></div>
+      <div>
+        <h1>高品质生活体验情报</h1>
+        <p>PREMIUM LIFESTYLE INTEL</p>
+      </div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">概览</div>
+      <a class="nav-link active" onclick="showPage('dashboard',this)" data-page="dashboard">
+        <span class="ni"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span> 数据仪表盘
+      </a>
+      <a class="nav-link" onclick="showPage('maintenance',this)" data-page="maintenance">
+        <span class="ni"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span> 数据维护
+      </a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">内容管理</div>
+      <a class="nav-link" onclick="showPage('articles',this)" data-page="articles">
+        <span class="ni"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg></span> 文章管理
+        <span class="badge-count" id="pendingCount">-</span>
+      </a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">输出</div>
+      <a class="nav-link" onclick="showPage('report',this)" data-page="report">
+        <span class="ni"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16v16H4z"/><path d="M4 9h16M9 4v16"/></svg></span> 组刊工作台
+      </a>
+      <a class="nav-link" onclick="showPage('issues',this)" data-page="issues">
+        <span class="ni"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9 15l3-3 3 3"/></svg></span> 往期日报
+      </a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div style="margin-bottom:4px">三关漏斗 · Qwen Flash → Qwen Plus → DeepSeek</div>
+    <div id="lastUpdate">上次更新: --</div>
+  </div>
+</aside>
+
+<!-- 主内容 -->
+<div class="main">
+  <!-- 顶栏 -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="btn-icon mobile-menu" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <div>
+        <h2 id="pageTitle">数据仪表盘</h2>
+        <div class="sub" id="pageSub">系统概览与数据统计</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-outline btn-sm" onclick="refreshData()">↻ 刷新</button>
+      <button class="btn btn-gold btn-sm" onclick="showPage('report',document.querySelector('[data-page=report]'))">— 组刊工作台</button>
+    </div>
+  </header>
+
+  <div class="page-container">
+
+    <!-- ===== 仪表盘页 ===== -->
+    <div class="page active" id="page-dashboard">
+      <div class="dash">
+        <div class="dash-hero">
+          <h2> 高品质图文推荐系统</h2>
+          <p>自动监控全球 61 个精品网站，通过 DeepSeek + Qwen + Kimi 三模型交叉验证进行 AI 分析，为您筛选最有价值的高品质生活体验内容。</p>
+        </div>
+        <div class="stats-grid" id="statsGrid"></div>
+        <h3 style="font-size:16px;font-weight:400;color:var(--text2);margin-bottom:16px;letter-spacing:1px">分类分布</h3>
+        <div class="cat-grid" id="catGrid"></div>
+      </div>
+    </div>
+
+    <!-- ===== 文章管理页 ===== -->
+    <div class="page" id="page-articles">
+      <div class="articles-page">
+        <div class="toolbar">
+          <div class="filter-tabs" id="filterTabs"><span id="catFilterLabel"></span>
+            <span class="filter-tab active" onclick="filterArticles('featured',this)">精选待筛选</span>
+            <span class="filter-tab" onclick="filterArticles('pending_human',this)">待人工</span>
+            <span class="filter-tab" onclick="filterArticles('pending',this)">C档待筛选</span>
+            <span class="filter-tab" onclick="filterArticles('candidate',this)">日报候选</span>
+            <span class="filter-tab" onclick="filterArticles('evergreen',this)">常青库</span>
+            <span class="filter-tab" onclick="filterArticles('checked',this)">已勾选</span>
+            <span class="filter-tab" onclick="filterArticles('in_issue',this)">已入报</span>
+            <span class="filter-tab" onclick="filterArticles('all',this)">全部入库</span>
+          </div>
+
+          <div class="cat-filter-row" id="catFilterRow" style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px">
+            <span class="filter-tab active" onclick="filterByCatTab(null,this)" data-cat="">全部分类</span>
+            <span class="filter-tab" onclick="filterByCatTab('精品酒店与度假',this)" data-cat="精品酒店与度假">精品酒店与度假</span>
+            <span class="filter-tab" onclick="filterByCatTab('旅行与探索',this)" data-cat="旅行与探索">旅行与探索</span>
+            <span class="filter-tab" onclick="filterByCatTab('美食与美酒',this)" data-cat="美食与美酒">美食与美酒</span>
+            <span class="filter-tab" onclick="filterByCatTab('艺术与文化',this)" data-cat="艺术与文化">艺术与文化</span>
+            <span class="filter-tab" onclick="filterByCatTab('建筑与空间',this)" data-cat="建筑与空间">建筑与空间</span>
+            <span class="filter-tab" onclick="filterByCatTab('产品与设计',this)" data-cat="产品与设计">产品与设计</span>
+            <span class="filter-tab" onclick="filterByCatTab('时尚与风格',this)" data-cat="时尚与风格">时尚与风格</span>
+            <span class="filter-tab" onclick="filterByCatTab('珠宝与腕表',this)" data-cat="珠宝与腕表">珠宝与腕表</span>
+            <span class="filter-tab" onclick="filterByCatTab('汽车与出行',this)" data-cat="汽车与出行">汽车与出行</span>
+            <span class="filter-tab" onclick="filterByCatTab('科技与生活',this)" data-cat="科技与生活">科技与生活</span>
+            <span class="filter-tab" onclick="filterByCatTab('健康与养生',this)" data-cat="健康与养生">健康与养生</span>
+            <span class="filter-tab" onclick="filterByCatTab('音乐与演出',this)" data-cat="音乐与演出">音乐与演出</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+            <div class="search-box">
+              <span style="color:var(--text3)"></span>
+              <input type="text" placeholder="搜索标题、来源..." id="searchInput" oninput="filterArticles()">
+            </div>
+            <div class="wb-date-filter">
+              <span>📅 日期筛选</span>
+              <input type="date" id="filterDateInput" onchange="onDateChange(this.value)">
+              <span class="clear-date" onclick="onDateChange('')">清除</span>
+            </div>
+          </div>
+          <div class="archive-chip-row" id="allArchiveChips" style="display:none">
+            <button class="archive-chip active" onclick="filterAllSub('in_flow',this)">流转中</button>
+            <button class="archive-chip" onclick="filterAllSub('sunk',this)">沉库</button>
+            <button class="archive-chip" onclick="filterAllSub('archived',this)">已归档</button>
+          </div>
+          <div class="fb-chip-row" id="checkedChips" style="display:none">
+            <button class="fb-chip active" onclick="filterCheckedSub('all',this)">全部</button>
+            <button class="fb-chip" onclick="filterCheckedSub('asap',this)">尽快安排</button>
+            <button class="fb-chip" onclick="filterCheckedSub('next_trip',this)">下次顺路</button>
+          </div>
+          <div class="fb-chip-row" id="inIssueChips" style="display:none">
+            <button class="fb-chip active" onclick="filterInIssueSub('all',this)">全部</button>
+            <button class="fb-chip" onclick="filterInIssueSub('checked',this)">已勾选</button>
+            <button class="fb-chip" onclick="filterInIssueSub('skipped',this)">已跳过</button>
+            <button class="fb-chip" onclick="filterInIssueSub('none',this)">未操作</button>
+          </div>
+        </div>
+        <div class="article-batch-bar" id="articleBatchBar"></div>
+        <div class="filter-count" id="filterCount" style="display:none;text-align:center;padding:12px 0;color:var(--text2);font-size:13px"></div>
+        <div class="article-grid" id="articleGrid"></div>
+      </div>
+    </div>
+
+    <!-- ===== 组刊工作台 ===== -->
+    <div class="page" id="page-report">
+      <div class="workbench">
+        <!-- 左栏：候选池 -->
+        <div class="wb-panel wb-left">
+          <div class="wb-panel-header">
+            <h3>候选池</h3>
+            <div class="wb-panel-actions">
+              <span class="wb-count" id="candidateCount">-</span>
+            </div>
+          </div>
+          <div class="wb-panel-body" id="candidatePool">
+            <div class="wb-loading">加载中...</div>
+          </div>
+        </div>
+
+        <!-- 右栏：本期刊物 -->
+        <div class="wb-panel wb-right">
+          <div class="wb-panel-header">
+            <h3>本期刊物</h3>
+            <div class="wb-panel-actions">
+              <button class="btn btn-outline btn-sm" style="font-size:10px" onclick="openEvergreenModal()">＋ 常青调入</button>
+              <span class="wb-count" id="issueCount">0 篇</span>
+            </div>
+          </div>
+          <div class="wb-action-sticky">
+            <div class="wb-status-bar" id="issueStatusBar">
+              <span id="issueCountWarning"></span>
+              <span id="issueCardStats"></span>
+              <span id="issueChannelStats"></span>
+            </div>
+            <div class="wb-action-row">
+              <button class="btn btn-outline" id="btnPrepareCards" onclick="prepareCards('all')">成卡</button>
+              <button class="btn btn-outline" id="btnRetryCards" onclick="prepareCards('not_ready')">重成未就绪</button>
+              <button class="btn btn-gold" id="btnGenerateIssue" onclick="generateIssue()">组刊生成日报</button>
+            </div>
+          </div>
+
+          <div class="wb-panel-body" id="issueArticles" style="min-height:200px">
+            <div class="wb-empty">从左侧候选池选择文章加入本期</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 往期日报 ===== -->
+    <div class="page" id="page-issues">
+      <div class="issues-page">
+        <div class="dash">
+          <div class="dash-hero">
+            <h2>往期日报</h2>
+            <p>已生成的期刊列表，可查看每期文章清单并回填服务对象勾选结果。</p>
+          </div>
+          <div id="issuesList">
+            <div class="wb-loading">加载中...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 数据维护页 ===== -->
+    <div class="page" id="page-maintenance">
+      <div class="dash">
+        <h2 style="font-size:20px;font-weight:400;color:var(--text);letter-spacing:1px;margin:0 0 16px 0">数据维护</h2>
+        <div style="display:flex;flex-direction:column;gap:16px;max-width:700px">
+          <div class="maint-card" id="maint-resummarize">
+            <div class="maint-card-header">
+              <h4>定向重跑摘要</h4>
+              <span class="maint-status" id="status-resummarize">待执行</span>
+            </div>
+            <p style="font-size:12px;color:var(--text2);margin-bottom:12px">按文章 ID 或固定范围重跑摘要。先预览影响文章，再执行改写。</p>
+            <div style="display:grid;grid-template-columns:1fr 120px;gap:8px;margin-bottom:8px">
+              <select id="maintResumMode" class="maint-input">
+                <option value="ids">指定文章 ID</option>
+                <option value="featured">精选待筛选</option>
+                <option value="selectable">可筛选 A/B/C</option>
+                <option value="candidate">日报候选</option>
+                <option value="evergreen">常青库</option>
+              </select>
+              <input id="maintResumLimit" class="maint-input" type="number" value="20" min="1" max="100" title="范围模式最多处理篇数">
+            </div>
+            <div class="maint-article-picker">
+              <select id="maintArticleSelect-resummarize" class="maint-input"></select>
+              <button class="btn btn-outline btn-sm" onclick="addMaintenanceArticle('resummarize')">加入</button>
+            </div>
+            <div class="maint-selected-list" id="maintSelected-resummarize"></div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button class="btn btn-outline btn-sm" onclick="previewMaintenance('resummarize')">预览</button>
+              <button class="btn btn-gold btn-sm" onclick="runMaintenance('resummarize')" disabled id="btnRun-resummarize">执行预览结果</button>
+            </div>
+            <div class="maint-progress" id="progress-resummarize" style="display:none"></div>
+          </div>
+          <div class="maint-card" id="maint-reeval">
+            <div class="maint-card-header">
+              <h4>重新评估待人工队列</h4>
+              <span class="maint-status" id="status-reeval">待执行</span>
+            </div>
+            <p style="font-size:12px;color:var(--text2);margin-bottom:12px">按当前关键词配置重新检查待人工文章。先预览哪些会复位，执行时只复位预览命中的文章。</p>
+            <div style="display:grid;grid-template-columns:1fr 120px;gap:8px;margin-bottom:8px">
+              <select id="maintReevalMode" class="maint-input">
+                <option value="queue">扫描待人工队列</option>
+                <option value="ids">只处理已选文章</option>
+              </select>
+              <input id="maintReevalLimit" class="maint-input" type="number" value="100" min="1" max="300" title="最多扫描篇数">
+            </div>
+            <div class="maint-article-picker">
+              <select id="maintArticleSelect-reeval" class="maint-input"></select>
+              <button class="btn btn-outline btn-sm" onclick="addMaintenanceArticle('reeval')">加入</button>
+            </div>
+            <div class="maint-selected-list" id="maintSelected-reeval"></div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button class="btn btn-outline btn-sm" onclick="previewMaintenance('reeval')">预览</button>
+              <button class="btn btn-gold btn-sm" onclick="runMaintenance('reeval')" disabled id="btnRun-reeval">执行预览结果</button>
+            </div>
+            <div class="maint-progress" id="progress-reeval" style="display:none"></div>
+          </div>
+          <div class="maint-card" id="maint-reveto">
+            <div class="maint-card-header">
+              <h4>重跑否决检查</h4>
+              <span class="maint-status" id="status-reveto">待执行</span>
+            </div>
+            <p style="font-size:12px;color:var(--text2);margin-bottom:12px">对指定文章或固定范围重跑否决检查。命中后会写入否决标记并降为 D 档。</p>
+            <div style="display:grid;grid-template-columns:1fr 120px;gap:8px;margin-bottom:8px">
+              <select id="maintRevetoMode" class="maint-input">
+                <option value="ids">只处理已选文章</option>
+                <option value="reviewable">最近待筛选/候选</option>
+                <option value="selectable">可筛选 A/B/C</option>
+                <option value="featured">精选待筛选</option>
+                <option value="c_tier">C档待筛选</option>
+                <option value="candidate">日报候选</option>
+              </select>
+              <input id="maintRevetoLimit" class="maint-input" type="number" value="10" min="1" max="100" title="范围模式最多处理篇数">
+            </div>
+            <div class="maint-article-picker">
+              <select id="maintArticleSelect-reveto" class="maint-input"></select>
+              <button class="btn btn-outline btn-sm" onclick="addMaintenanceArticle('reveto')">加入</button>
+            </div>
+            <div class="maint-selected-list" id="maintSelected-reveto"></div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button class="btn btn-outline btn-sm" onclick="previewMaintenance('reveto')">预览</button>
+              <button class="btn btn-gold btn-sm" onclick="runMaintenance('reveto')" disabled id="btnRun-reveto">执行预览结果</button>
+            </div>
+            <div class="maint-progress" id="progress-reveto" style="display:none"></div>
+          </div>
+          <div class="maint-card" id="maint-clear-feedback">
+            <div class="maint-card-header">
+              <h4>定向清除勾选数据</h4>
+              <span class="maint-status" id="status-clear-feedback">待执行</span>
+            </div>
+            <p style="font-size:12px;color:var(--text2);margin-bottom:12px">只清除指定文章或指定期刊内文章的 dj_feedback / feedback_detail。不动文章状态与卡片缓存。</p>
+            <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:8px">
+              <select id="maintClearIssueId" class="maint-input">
+                <option value="">选择期刊（可选）</option>
+              </select>
+              <div class="maint-article-picker">
+                <select id="maintArticleSelect-clear-feedback" class="maint-input"></select>
+                <button class="btn btn-outline btn-sm" onclick="addMaintenanceArticle('clear-feedback')">加入</button>
+              </div>
+              <div class="maint-selected-list" id="maintSelected-clear-feedback"></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button class="btn btn-outline btn-sm" onclick="previewMaintenance('clear-feedback')">预览</button>
+              <button class="btn btn-red btn-sm" onclick="if(confirm('确认只清除预览列表里的勾选数据？'))runMaintenance('clear-feedback')" disabled id="btnRun-clear-feedback">清除预览结果</button>
+            </div>
+            <div class="maint-progress" id="progress-clear-feedback" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+  </div>
+
+<!-- 弹窗 -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="modalHero"></div>
+    <div class="modal-content" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

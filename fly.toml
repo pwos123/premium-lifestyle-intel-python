@@ -1,0 +1,28 @@
+app = "premium-lifestyle-intel"
+primary_region = "nrt"
+
+[build]
+
+[[mounts]]
+source = "lifestyle_data"
+destination = "/data"
+
+[env]
+DATABASE_PATH = "/data/content/content.db"
+IMAGE_CACHE_DIR = "/data/images"
+OUTPUT_DIR = "/data/output"
+PORT = "8080"
+
+[http_service]
+internal_port = 8080
+force_https = true
+auto_stop_machines = false
+auto_start_machines = true
+min_machines_running = 1
+
+[[http_service.checks]]
+grace_period = "10s"
+interval = "30s"
+method = "get"
+path = "/login"
+timeout = "5s"

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>登录</title><style>
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f7f5f1;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#151515}
+.box{width:min(360px,calc(100vw - 32px));background:#fff;border:1px solid #e7e1d8;border-radius:10px;padding:24px;box-shadow:0 12px 32px #00000012}
+h1{font-size:20px;margin:0 0 8px}.sub{font-size:13px;color:#777;margin-bottom:18px}
+input,button{width:100%;height:42px;border-radius:8px;font:inherit}input{border:1px solid #d9d0c4;padding:0 12px;margin-bottom:10px}
+button{border:0;background:#8a6a3f;color:white;font-weight:700}.err{color:#b33;font-size:13px;margin-bottom:10px}
+
+/* ===== 组刊工作台 ===== */
+/* ===== 组刊工作台 ===== */
+.wb-count{font-size:10px;color:var(--text3);font-family:-apple-system,sans-serif;background:var(--card2);padding:2px 8px;border-radius:10px}
+.wb-date-filter{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--text2)}
+.wb-date-filter input{background:var(--bg);border:1px solid var(--border);color:var(--text1);padding:4px 10px;border-radius:6px;font-size:12px}
+.wb-date-filter .clear-date{color:var(--accent);cursor:pointer;font-size:11px}
+
+
+/* 频道吸顶小节头 */
+
+/* 候选池卡片 */
+
+/* 右栏已选文章 */
+
+/* 状态条 */
+
+/* 往期日报列表 */
+.issue-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:12px;transition:all .15s}
+.issue-card:hover{border-color:var(--accent)}
+.issue-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.issue-card-title{font-size:15px;font-weight:500;color:var(--text)}
+.issue-card-meta{font-size:12px;color:var(--text3);display:flex;gap:12px}
+.issue-card-body{display:none;padding-top:12px;border-top:1px solid var(--border)}
+.issue-card.open .issue-card-body{display:block}
+.issue-article-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border2);font-size:12px}
+.issue-row-index{color:var(--text3);min-width:22px;line-height:1.55}
+.issue-row-main{flex:1;min-width:0}
+.issue-row-title{font-size:13px;line-height:1.45;color:var(--text)}
+.issue-row-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px;font-size:10px;color:var(--text3)}
+.issue-row-actions{display:flex;align-items:flex-start;gap:10px;margin-left:auto}
+.issue-edit-btn{padding:5px 10px;border:1px solid var(--accent);border-radius:6px;background:var(--card);font-size:11px;cursor:pointer;color:var(--accent);white-space:nowrap}
+.issue-edit-btn:hover{background:var(--accent);color:#fff}
+.issue-feedback-group{display:flex;gap:5px;padding-left:10px;border-left:1px solid var(--border2);flex-wrap:wrap;justify-content:flex-end}
+.issue-detail-toolbar{display:flex;justify-content:flex-end;margin-bottom:8px}
+.issue-collapse-btn{border:1px solid var(--border);background:var(--card2);color:var(--text2);border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer}
+.card-edit-modal-shell{max-width:980px}
+.card-edit-form{display:flex;flex-direction:column;gap:16px}
+.card-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card-edit-field{display:flex;flex-direction:column;gap:7px}
+.card-edit-field label{display:block;font-size:11px;color:var(--text3);letter-spacing:1px}
+.card-edit-field.card-edit-full{grid-column:1/-1}
+.card-edit-input,.card-edit-textarea{width:100%;border:1px solid var(--border);border-radius:8px;background:var(--card2);color:var(--text);font-family:-apple-system,sans-serif;font-size:14px;padding:10px 12px;box-sizing:border-box}
+.card-edit-input{min-height:42px}
+.card-edit-textarea{min-height:140px;line-height:1.65;resize:vertical}
+.card-edit-textarea.card-edit-long{min-height:190px}
+.card-edit-textarea.card-edit-short{min-height:118px}
+.card-edit-images{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:10px}
+.card-edit-img{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card2)}
+.card-edit-img img{width:100%;height:124px;object-fit:contain;display:block;background:#f7f4ee}
+.card-edit-img-actions{display:flex;gap:4px;padding:5px}
+.card-edit-img-actions button{flex:1;border:1px solid var(--border);background:var(--card);border-radius:5px;font-size:10px;color:var(--text2);cursor:pointer}
+.card-edit-upload{display:flex;gap:8px;align-items:center;padding:10px;border:1px dashed var(--border2);border-radius:8px;background:var(--card2)}
+@media (max-width:720px){.issue-article-row{flex-wrap:wrap}.issue-row-actions{width:100%;margin-left:32px}.card-edit-grid{grid-template-columns:1fr}.card-edit-images{grid-template-columns:repeat(2,1fr)}}
+.dj-fb-btn{padding:3px 8px;border:1px solid var(--border);border-radius:5px;background:transparent;font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap;color:var(--text2)}
+.dj-fb-btn.active-asap{background:#2e7d32;color:#fff;border-color:#2e7d32}
+.dj-fb-btn.active-next{background:#1565c0;color:#fff;border-color:#1565c0}
+.dj-fb-btn.active-skipped{background:#c62828;color:#fff;border-color:#c62828}
+
+/* 常青库弹窗 */
+.evergreen-modal-list{max-height:64vh;overflow-y:auto;border-top:1px solid var(--border2)}
+.evergreen-modal-item{display:grid;grid-template-columns:76px minmax(0,1fr) auto;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border2);cursor:pointer;transition:all .12s}
+.evergreen-modal-item:hover{background:var(--card2)}
+.evergreen-modal-item .ev-thumb{width:76px!important;height:56px!important;border-radius:8px;object-fit:cover;display:block;background:var(--card2);border:1px solid var(--border)}
+.evergreen-modal-title{font-size:13px;font-weight:600;color:var(--text);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.evergreen-modal-desc{margin-top:4px;color:var(--text3);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.evergreen-modal-meta{margin-top:6px;color:var(--text3);font-size:10px}
+.evergreen-add-btn{border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;white-space:nowrap}
+
+@media (max-width:900px){
+}
+
+
+.archive-chip-row{display:flex;gap:16px;margin:10px 0 14px}
+.archive-chip{padding:6px 20px;border:none;border-radius:6px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .2s;font-family:-apple-system,sans-serif;background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.06);white-space:nowrap;font-weight:500}
+.archive-chip:hover{background:var(--card2);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.archive-chip.active{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(138,106,63,.25)}
+.archive-chip.sunk{border-left:3px solid #b8860b;color:#b8860b}
+.archive-chip.sunk.active{background:#b8860b;color:#fff;border-left-color:#b8860b;box-shadow:0 2px 8px rgba(184,134,11,.25)}
+.fb-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500;font-family:-apple-system,sans-serif}
+.fb-badge.asap{background:#e8f5e9;color:#2e7d32}
+.fb-badge.next_trip{background:#e3f2fd;color:#1565c0}
+.fb-badge.skipped{background:#fce4ec;color:#c62828}
+.fb-badge.none{background:#f5f5f5;color:#9e9e9e}
+.fb-chip-row{display:flex;gap:8px;margin:8px 0 12px;flex-wrap:wrap}
+.fb-chip{padding:5px 14px;border:1px solid var(--border);border-radius:14px;font-size:11px;color:var(--text2);cursor:pointer;transition:all .2s;font-family:-apple-system,sans-serif;background:var(--card);white-space:nowrap}
+.fb-chip:hover{background:var(--card2);border-color:var(--border2)}
+.fb-chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.sink-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;background:#fff8e1;border:1px solid #e6c300;color:#b8860b;border-radius:3px;font-size:10px;font-family:-apple-system,sans-serif}
+.archive-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;background:#fef0f0;border:1px solid #ecc;color:#c44;border-radius:3px;font-size:10px;font-family:-apple-system,sans-serif}
+.dash-sunk-stat .stat-card{border-left:3px solid #b8860b}
+</style></head><body><form class="box" method="post"><h1>品质生活情报库</h1><div class="sub">请输入访问密码</div>{% if error %}<div class="err">密码不正确</div>{% endif %}<input name="password" type="password" autofocus><button>进入</button></form></body></html>
